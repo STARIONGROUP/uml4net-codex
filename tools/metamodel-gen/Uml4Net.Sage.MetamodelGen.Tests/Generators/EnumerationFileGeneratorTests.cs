@@ -28,7 +28,7 @@ namespace Uml4Net.Sage.MetamodelGen.Tests.Generators
     public class EnumerationFileGeneratorTests
     {
         [Test]
-        public void Render_includes_front_matter_and_sorted_literals()
+        public void Render_includes_front_matter_and_literals()
         {
             var catalog = TestFixtures.BuildCatalog();
             var kind = catalog.Enumerations.Single(e => e.Name == "Kind");
@@ -39,6 +39,19 @@ namespace Uml4Net.Sage.MetamodelGen.Tests.Generators
             Assert.That(markdown, Does.Contain("qualifiedName: \"Fixture::Kind\""));
             Assert.That(markdown, Does.Contain("- `A` - Indicates the first kind."));
             Assert.That(markdown, Does.Contain("- `B`"));
+        }
+
+        [Test]
+        public void Render_keeps_literals_in_normative_xmi_order_not_alphabetical()
+        {
+            var catalog = TestFixtures.BuildCatalog();
+            var kind = catalog.Enumerations.Single(e => e.Name == "Kind");
+
+            var markdown = EnumerationFileGenerator.Render(kind);
+
+            var literalsSection = markdown[markdown.IndexOf("## Literals")..markdown.IndexOf("## Description")];
+            Assert.That(literalsSection.IndexOf("- `A`"), Is.LessThan(literalsSection.IndexOf("- `B`")));
+            Assert.That(literalsSection.IndexOf("- `B`"), Is.LessThan(literalsSection.IndexOf("- `Aa`")));
         }
 
         [Test]

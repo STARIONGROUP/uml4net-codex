@@ -53,7 +53,9 @@ namespace Uml4Net.Sage.MetamodelGen.Generators
             builder.Append("# ").Append(enumeration.Name).Append("\n\n");
             builder.Append("## Literals\n\n");
 
-            var literals = enumeration.OwnedLiteral.OrderBy(literal => literal.Name, System.StringComparer.Ordinal).ToList();
+            // ownedLiteral is an ordered property: keep the XMI's (normative) order rather than sorting,
+            // since the order of literals is part of an enumeration's definition.
+            var literals = enumeration.OwnedLiteral.ToList();
             if (literals.Count == 0)
             {
                 builder.Append("_None._\n");

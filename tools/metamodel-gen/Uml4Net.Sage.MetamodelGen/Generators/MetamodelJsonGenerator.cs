@@ -62,7 +62,8 @@ namespace Uml4Net.Sage.MetamodelGen.Generators
                     e.Name,
                     e.QualifiedName,
                     (e.Namespace as INamedElement)?.QualifiedName ?? string.Empty,
-                    e.OwnedLiteral.Select(l => l.Name).OrderBy(n => n, System.StringComparer.Ordinal).ToList()))
+                    // ownedLiteral is ordered: keep the XMI's (normative) literal order, not alphabetical.
+                    e.OwnedLiteral.Select(l => l.Name).ToList()))
                 .OrderBy(node => node.QualifiedName, System.StringComparer.Ordinal)
                 .ToList();
 
