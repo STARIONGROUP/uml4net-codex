@@ -94,5 +94,17 @@ namespace Uml4Net.Sage.MetamodelGen.Tests.Generators
             var json = MetamodelJsonGenerator.Serialize(document);
             Assert.That(json, Does.Contain("\"associations\""));
         }
+
+        [Test]
+        public void Build_keeps_enumeration_literals_in_normative_xmi_order_not_alphabetical()
+        {
+            var catalog = TestFixtures.BuildCatalog();
+            var graph = ClassGraph.Build(catalog.Classes);
+            var document = MetamodelJsonGenerator.Build(catalog, graph);
+
+            var kind = document.Enumerations.Single(e => e.Name == "Kind");
+
+            Assert.That(kind.Literals, Is.EqualTo(new[] { "A", "B", "Aa" }));
+        }
     }
 }

@@ -69,6 +69,7 @@
 				</ownedComment>
 			</ownedLiteral>
 			<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="Kind-B" name="B"/>
+			<ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="Kind-Aa" name="Aa"/>
 		</packagedElement>
 	</uml:Package>
 </xmi:XMI>
