@@ -87,7 +87,7 @@ namespace Uml4Net.Sage.MetamodelGen
                 Kind: "operation",
                 TypeName: type?.Name,
                 TypeQualifiedName: type?.QualifiedName,
-                Lower: operation.Lower,
+                Lower: operation.Lower ?? 0,
                 Upper: operation.Upper,
                 IsDerived: false,
                 IsOrdered: operation.IsOrdered,

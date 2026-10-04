@@ -63,7 +63,7 @@ namespace Uml4Net.Sage.Tools.Tests.Inspection
                 Path.Combine(FixturesDirectory, "metamodel-no-abstract-classes.json"),
                 "2.5.1");
 
-            Assert.That(report.Findings, Has.Some.Matches<InspectionFinding>(f => f.Category == "reader-diagnostic"));
+            Assert.That(report.Findings, Has.Some.Matches<InspectionFinding>(f => f is { Category: "reader-diagnostic" }));
         }
 
         [Test]
