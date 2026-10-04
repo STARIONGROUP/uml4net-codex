@@ -70,7 +70,7 @@ before bumping either).
   - `INamedElement.QualifiedName` is null when the element or any enclosing namespace is unnamed.
   - `IProperty.IsComposite` follows the spec strictly (`aggregation == composite`).
   - `IClass.Extension` follows the OCL's `endTypes.allParents()` branch, so a stereotype's `Extension`
-    also lists its specializations' extensions - `StereotypeFileGenerator.OwnExtensions` filters to
+    also lists its specializations' extensions - `StereotypeFileGenerator.ExtensionsOf` filters to
     the extensions whose `ExtensionEnd` is typed by that stereotype itself.
 - **Why the full CLI is not NativeAOT**: `uml4net.xmi` (reflection-heavy), Spectre.Console and
   System.CommandLine are not trim/AOT-friendly, so the CLI ships as a self-contained (non-AOT) publish

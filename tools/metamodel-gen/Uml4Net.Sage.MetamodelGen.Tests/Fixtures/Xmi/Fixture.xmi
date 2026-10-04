@@ -16,7 +16,7 @@
 					<body>label-&gt;notEmpty()</body>
 				</specification>
 			</ownedRule>
-			<ownedOperation xmi:type="uml:Operation" xmi:id="Widget-describe" name="describe">
+			<ownedOperation xmi:type="uml:Operation" xmi:id="Widget-describe" name="describe" isQuery="true">
 				<ownedParameter xmi:type="uml:Parameter" xmi:id="Widget-describe-result" name="result" direction="return">
 					<type xmi:type="uml:PrimitiveType" href="http://example.com/spec/Fixture/1.0/FixturePrimitiveTypes.xmi#String"/>
 					<lowerValue xmi:type="uml:LiteralInteger" xmi:id="Widget-describe-result-lv" value="1"/>
@@ -38,10 +38,11 @@
 		</packagedElement>
 		<packagedElement xmi:type="uml:Class" xmi:id="Gadget" name="Gadget" isAbstract="false">
 			<generalization xmi:type="uml:Generalization" xmi:id="Gadget-gen" general="Widget"/>
-			<ownedAttribute xmi:type="uml:Property" xmi:id="Gadget-count" name="count" isOrdered="false" isUnique="true">
+			<ownedAttribute xmi:type="uml:Property" xmi:id="Gadget-count" name="count" isOrdered="false" isUnique="true" isReadOnly="true">
 				<type xmi:type="uml:PrimitiveType" href="http://example.com/spec/Fixture/1.0/FixturePrimitiveTypes.xmi#Integer"/>
 				<lowerValue xmi:type="uml:LiteralInteger" xmi:id="Gadget-count-lv" value="1"/>
 				<upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="Gadget-count-uv" value="1"/>
+				<defaultValue xmi:type="uml:LiteralInteger" xmi:id="Gadget-count-dv" value="0"/>
 			</ownedAttribute>
 			<ownedAttribute xmi:type="uml:Property" xmi:id="Gadget-container" name="container" type="Widget" association="A_container_gadgets">
 				<lowerValue xmi:type="uml:LiteralInteger" xmi:id="Gadget-container-lv" value="0"/>

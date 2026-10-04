@@ -22,10 +22,10 @@ knowledge/<version>/
 ├── datapackage.json                    # OKF Frictionless Data Package, scoped to the 3 tabular indexes below
 ├── metamodel/
 │   ├── index.json / index.md           # every class/enumeration/primitiveType/association: {name, kind, package, qualifiedName, isAbstract, file}
-│   ├── metamodel.json                  # full graph with precomputed inheritance closures
+│   ├── metamodel.json                  # full graph: inheritance closures, inheritedMember, opposites, association ends
 │   └── elements/<Name>.md              # one page per class/enumeration/primitiveType/association
 ├── standard-profile/
-│   ├── index.json / index.md           # every stereotype: {qualifiedName, kind, file, source}
+│   ├── index.json / index.md           # every stereotype: {qualifiedName, kind, file, source, profile, baseMetaclasses}
 │   └── pages/<Name>.md                 # one page per stereotype
 └── spec/                               # present only once the PDFs are fetched and extracted
     ├── index.json / index.md           # every clause: {clause, title, document, pages, normative, file}

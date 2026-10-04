@@ -112,5 +112,48 @@ namespace Uml4Net.Sage.MetamodelGen.Tests
 
             Assert.That(feature.Body, Is.Empty);
         }
+
+        [Test]
+        public void FromProperty_captures_read_only_default_value_and_aggregation()
+        {
+            var catalog = TestFixtures.BuildCatalog();
+            var gadget = catalog.Classes.Single(c => c.Name == "Gadget");
+            var count = gadget.OwnedAttribute.Single(a => a.Name == "count");
+
+            var feature = FeatureExtractor.FromProperty(count, gadget.QualifiedName);
+
+            Assert.That(feature.IsReadOnly, Is.True);
+            Assert.That(feature.DefaultValue, Is.EqualTo("0"));
+            Assert.That(feature.Aggregation, Is.EqualTo("none"));
+            Assert.That(feature.Opposite, Is.Null, "count is not an association end");
+        }
+
+        [Test]
+        public void FromProperty_captures_the_opposite_end_of_a_binary_association()
+        {
+            var catalog = TestFixtures.BuildCatalog();
+            var gadget = catalog.Classes.Single(c => c.Name == "Gadget");
+            var container = gadget.OwnedAttribute.Single(a => a.Name == "container");
+
+            var feature = FeatureExtractor.FromProperty(container, gadget.QualifiedName);
+
+            Assert.That(feature.Opposite, Is.EqualTo("Fixture::A_container_gadgets::gadgets"));
+            Assert.That(feature.DefaultValue, Is.Null);
+        }
+
+        [Test]
+        public void FromOperation_captures_is_query_and_leaves_attribute_only_fields_empty()
+        {
+            var catalog = TestFixtures.BuildCatalog();
+            var widget = catalog.Classes.Single(c => c.Name == "Widget");
+            var describe = widget.OwnedOperation.Single(o => o.Name == "describe");
+
+            var feature = FeatureExtractor.FromOperation(describe, widget.QualifiedName);
+
+            Assert.That(feature.IsQuery, Is.True);
+            Assert.That(feature.IsAbstract, Is.False);
+            Assert.That(feature.Aggregation, Is.Null);
+            Assert.That(feature.Opposite, Is.Null);
+        }
     }
 }

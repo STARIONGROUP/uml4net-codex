@@ -47,6 +47,20 @@ namespace Uml4Net.Sage.MetamodelGen.Model
     /// a derived property's <c>Query*()</c> accessor, e.g. <c>Connector::kind()</c>); empty for attributes and
     /// for operations with no <c>bodyCondition</c>.
     /// </param>
+    /// <param name="IsStatic">Whether the feature is static (owned by the classifier rather than its instances).</param>
+    /// <param name="IsReadOnly">Whether the attribute is read-only; always false for operations.</param>
+    /// <param name="IsDerivedUnion">
+    /// Whether the attribute is a derived union - its value is the union of every property that subsets it;
+    /// always false for operations.
+    /// </param>
+    /// <param name="Aggregation">The attribute's aggregation (<c>none</c>, <c>shared</c> or <c>composite</c>); null for operations.</param>
+    /// <param name="Opposite">
+    /// The qualified name of the attribute's opposite association end when the association is binary, otherwise
+    /// null (always null for operations).
+    /// </param>
+    /// <param name="DefaultValue">The attribute's default value in UML notation, if it has one; null for operations.</param>
+    /// <param name="IsQuery">Whether the operation is a query (does not change the system's state); always false for attributes.</param>
+    /// <param name="IsAbstract">Whether the operation is abstract; always false for attributes.</param>
     public sealed record FeatureInfo(
         string Name,
         string Kind,
@@ -62,5 +76,13 @@ namespace Uml4Net.Sage.MetamodelGen.Model
         IReadOnlyList<string> Subsets,
         string OwnerQualifiedName,
         IReadOnlyList<ParameterInfo> Parameters,
-        IReadOnlyList<ConstraintInfo> Body);
+        IReadOnlyList<ConstraintInfo> Body,
+        bool IsStatic,
+        bool IsReadOnly,
+        bool IsDerivedUnion,
+        string? Aggregation,
+        string? Opposite,
+        string? DefaultValue,
+        bool IsQuery,
+        bool IsAbstract);
 }

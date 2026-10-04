@@ -1,5 +1,5 @@
 // -------------------------------------------------------------------------------------------------
-// <copyright file="IndexRows.cs" company="Starion Group S.A.">
+// <copyright file="StereotypeExtensionInfo.cs" company="Starion Group S.A.">
 //
 //   Copyright (C) 2019-2026 Starion Group S.A.
 //
@@ -20,16 +20,13 @@
 
 namespace Uml4Net.Sage.MetamodelGen.Model
 {
-    using System.Collections.Generic;
-
     /// <summary>
-    /// One row of <c>metamodel/index.json</c> - a Frictionless tabular-data-resource row, hence a flat
-    /// array rather than a keyed map (see the root <c>datapackage.json</c>).
+    /// One metaclass a stereotype extends, read from the stereotype's own <c>Extension</c>.
     /// </summary>
-    public sealed record MetamodelIndexRow(string Name, string Kind, string Package, string QualifiedName, bool IsAbstract, string File);
-
-    /// <summary>
-    /// One row of <c>standard-profile/index.json</c>.
-    /// </summary>
-    public sealed record StandardProfileIndexRow(string QualifiedName, string Kind, string File, string Source, string Profile, IReadOnlyList<string> BaseMetaclasses);
+    /// <param name="Metaclass">The simple name of the extended metaclass.</param>
+    /// <param name="IsRequired">
+    /// Whether every instance of the metaclass must carry the stereotype (UML <c>Extension::isRequired</c>, i.e. the
+    /// extension end's lower bound is 1).
+    /// </param>
+    public sealed record StereotypeExtensionInfo(string Metaclass, bool IsRequired);
 }
