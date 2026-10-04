@@ -100,7 +100,9 @@ namespace Uml4Net.Sage.Knowledge
                         ("qualifiedName", "string", true),
                         ("kind", "string", false),
                         ("file", "string", false),
-                        ("source", "string", false)),
+                        ("source", "string", false),
+                        ("profile", "string", false),
+                        ("baseMetaclasses", "array", false)),
                     "qualifiedName"),
             };
 

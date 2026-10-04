@@ -40,6 +40,19 @@ namespace Uml4Net.Sage.MetamodelGen.Tests.Generators
         }
 
         [Test]
+        public void BuildRows_records_each_stereotypes_profile_and_own_base_metaclasses()
+        {
+            var rows = StandardProfileIndexGenerator.BuildRows(TestFixtures.BuildCatalog());
+
+            var sampleRow = rows.Single(r => r.QualifiedName == "FixtureProfile::Sample");
+            Assert.That(sampleRow.Profile, Is.EqualTo("FixtureProfile"));
+            Assert.That(sampleRow.BaseMetaclasses, Is.EqualTo(new[] { "Widget" }));
+
+            var specialSampleRow = rows.Single(r => r.QualifiedName == "FixtureProfile::SpecialSample");
+            Assert.That(specialSampleRow.BaseMetaclasses, Is.EqualTo(new[] { "Gadget" }));
+        }
+
+        [Test]
         public void RenderMarkdown_includes_a_row_per_stereotype()
         {
             var rows = StandardProfileIndexGenerator.BuildRows(TestFixtures.BuildCatalog());

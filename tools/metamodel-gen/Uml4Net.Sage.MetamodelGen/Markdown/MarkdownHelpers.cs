@@ -75,30 +75,20 @@ namespace Uml4Net.Sage.MetamodelGen.Markdown
 
             builder.Append(" [").Append(feature.Lower).Append("..").Append(feature.Upper).Append(']');
 
-            var modifiers = new List<string>();
-            if (feature.IsDerived)
-            {
-                modifiers.Add("derived");
-            }
-
-            if (feature.IsOrdered)
-            {
-                modifiers.Add("ordered");
-            }
-
-            if (feature.IsUnique is false)
-            {
-                modifiers.Add("non-unique");
-            }
-
-            if (feature.IsComposite)
-            {
-                modifiers.Add("composite");
-            }
-
+            var modifiers = Modifiers(feature);
             if (modifiers.Count > 0)
             {
                 builder.Append(" *(").Append(string.Join(", ", modifiers)).Append(")*");
+            }
+
+            if (feature.DefaultValue is not null)
+            {
+                builder.Append("\n  - default `").Append(feature.DefaultValue).Append('`');
+            }
+
+            if (feature.Opposite is not null)
+            {
+                builder.Append("\n  - opposite `").Append(feature.Opposite).Append('`');
             }
 
             foreach (var redefined in feature.Redefines.OrderBy(name => name, System.StringComparer.Ordinal))
@@ -157,22 +147,7 @@ namespace Uml4Net.Sage.MetamodelGen.Markdown
 
             foreach (var feature in features.OrderBy(f => f.Name, System.StringComparer.Ordinal).ThenBy(f => f.OwnerQualifiedName, System.StringComparer.Ordinal))
             {
-                var modifiers = new List<string>();
-                if (feature.IsDerived)
-                {
-                    modifiers.Add("derived");
-                }
-
-                if (feature.IsOrdered)
-                {
-                    modifiers.Add("ordered");
-                }
-
-                if (feature.IsComposite)
-                {
-                    modifiers.Add("composite");
-                }
-
+                var modifiers = Modifiers(feature);
                 var typeCell = feature.TypeName is null ? "" : Link(feature.TypeName, feature.TypeQualifiedName);
                 var nameCell = feature.Kind == "operation" ? $"{feature.Name}({ParameterList(feature.Parameters)})" : feature.Name;
                 builder.Append("| ").Append(nameCell)
@@ -184,6 +159,36 @@ namespace Uml4Net.Sage.MetamodelGen.Markdown
             }
 
             return builder.ToString().TrimEnd('\n');
+        }
+
+        /// <summary>
+        /// Lists the UML property/operation modifiers that apply to <paramref name="feature"/>, in a fixed order
+        /// (e.g. <c>derived, union, readOnly, ordered</c>).
+        /// </summary>
+        public static IReadOnlyList<string> Modifiers(FeatureInfo feature)
+        {
+            var modifiers = new List<string>();
+
+            void AddIf(bool condition, string modifier)
+            {
+                if (condition)
+                {
+                    modifiers.Add(modifier);
+                }
+            }
+
+            AddIf(feature.IsDerived, "derived");
+            AddIf(feature.IsDerivedUnion, "union");
+            AddIf(feature.IsReadOnly, "readOnly");
+            AddIf(feature.IsStatic, "static");
+            AddIf(feature.IsOrdered, "ordered");
+            AddIf(feature.IsUnique is false, "non-unique");
+            AddIf(feature.IsComposite, "composite");
+            AddIf(feature.Aggregation == "shared", "shared");
+            AddIf(feature.IsQuery, "query");
+            AddIf(feature.IsAbstract, "abstract");
+
+            return modifiers;
         }
 
         /// <summary>

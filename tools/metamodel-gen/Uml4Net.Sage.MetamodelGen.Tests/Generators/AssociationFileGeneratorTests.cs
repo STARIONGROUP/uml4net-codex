@@ -38,8 +38,8 @@ namespace Uml4Net.Sage.MetamodelGen.Tests.Generators
             Assert.That(markdown, Does.Contain("kind: \"association\""));
             Assert.That(markdown, Does.Contain("qualifiedName: \"Fixture::A_container_gadgets\""));
             Assert.That(markdown, Does.Contain("isDerived: false"));
-            Assert.That(markdown, Does.Contain("- **container**: [Widget](Widget.md) [0..1]"));
-            Assert.That(markdown, Does.Contain("- **gadgets**: [Gadget](Gadget.md) [0..*] *(ordered)*"));
+            Assert.That(markdown, Does.Contain("- **container**: [Widget](Widget.md) [0..1]\n"));
+            Assert.That(markdown, Does.Contain("- **gadgets**: [Gadget](Gadget.md) [0..*] *(ordered, non-navigable)*"));
         }
 
         [Test]

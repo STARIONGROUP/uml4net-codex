@@ -62,6 +62,20 @@ namespace Uml4Net.Sage.MetamodelGen.Tests.Generators
         }
 
         [Test]
+        public void Render_marks_a_required_extension_and_names_the_owning_profile()
+        {
+            var sample = this.catalog.Stereotypes.Single(s => s.Name == "Sample");
+            var specialSample = this.catalog.Stereotypes.Single(s => s.Name == "SpecialSample");
+
+            var sampleMarkdown = StereotypeFileGenerator.Render(sample, this.graph);
+            var specialSampleMarkdown = StereotypeFileGenerator.Render(specialSample, this.graph);
+
+            Assert.That(sampleMarkdown, Does.Contain("profile: \"FixtureProfile\""));
+            Assert.That(sampleMarkdown, Does.Contain("- `Widget`\n"), "Sample's extension end has lower bound 0");
+            Assert.That(specialSampleMarkdown, Does.Contain("- `Gadget` *(required)*"), "SpecialSample's extension end has lower bound 1");
+        }
+
+        [Test]
         public void Render_excludes_the_extension_end_attribute_from_tagged_values()
         {
             var sample = this.catalog.Stereotypes.Single(s => s.Name == "Sample");

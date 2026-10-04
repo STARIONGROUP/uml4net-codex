@@ -19,7 +19,7 @@
 		</packagedElement>
 		<packagedElement xmi:type="uml:Extension" xmi:id="Gadget_SpecialSample" name="Gadget_SpecialSample" memberEnd="Gadget_SpecialSample-extension_SpecialSample SpecialSample-base_Gadget">
 			<ownedEnd xmi:type="uml:ExtensionEnd" xmi:id="Gadget_SpecialSample-extension_SpecialSample" name="extension_SpecialSample" type="SpecialSample" aggregation="composite" association="Gadget_SpecialSample">
-				<lowerValue xmi:type="uml:LiteralInteger" xmi:id="Gadget_SpecialSample-extension_SpecialSample-lv" value="0"/>
+				<lowerValue xmi:type="uml:LiteralInteger" xmi:id="Gadget_SpecialSample-extension_SpecialSample-lv" value="1"/>
 			</ownedEnd>
 		</packagedElement>
 		<packagedElement xmi:type="uml:Stereotype" xmi:id="SpecialSample" name="SpecialSample">

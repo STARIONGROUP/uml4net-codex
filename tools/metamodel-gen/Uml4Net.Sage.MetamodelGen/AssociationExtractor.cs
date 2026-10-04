@@ -55,7 +55,11 @@ namespace Uml4Net.Sage.MetamodelGen
                         IsOrdered: end.IsOrdered,
                         IsUnique: end.IsUnique,
                         IsComposite: end.IsComposite,
-                        IsOwnedByAssociation: ReferenceEquals(end.OwningAssociation, association));
+                        IsOwnedByAssociation: ReferenceEquals(end.OwningAssociation, association),
+                        IsDerived: end.IsDerived,
+                        Aggregation: end.Aggregation.ToString().ToLowerInvariant(),
+                        IsNavigable: end.OwningAssociation is null || association.NavigableOwnedEnd.Contains(end),
+                        Opposite: end.Opposite?.QualifiedName);
                 })
                 .ToList();
         }

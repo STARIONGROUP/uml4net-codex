@@ -38,6 +38,13 @@ namespace Uml4Net.Sage.MetamodelGen.Model
     /// attribute (e.g. the reverse of <c>Class::nestedClassifier</c>). False means the end is instead
     /// owned by one of the endpoint classifiers and already appears on that classifier's own page.
     /// </param>
+    /// <param name="IsDerived">Whether the end is derived.</param>
+    /// <param name="Aggregation">The end's aggregation: <c>none</c>, <c>shared</c> or <c>composite</c>.</param>
+    /// <param name="IsNavigable">
+    /// Whether the end is navigable (UML <c>Property::isNavigable()</c>): owned by a classifier, or listed in the
+    /// association's <c>navigableOwnedEnd</c>.
+    /// </param>
+    /// <param name="Opposite">The qualified name of the other end of a binary association, otherwise null.</param>
     public sealed record AssociationEndInfo(
         string Name,
         string? TypeName,
@@ -47,5 +54,9 @@ namespace Uml4Net.Sage.MetamodelGen.Model
         bool IsOrdered,
         bool IsUnique,
         bool IsComposite,
-        bool IsOwnedByAssociation);
+        bool IsOwnedByAssociation,
+        bool IsDerived,
+        string Aggregation,
+        bool IsNavigable,
+        string? Opposite);
 }

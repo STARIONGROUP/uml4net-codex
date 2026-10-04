@@ -16,18 +16,25 @@ not here.
 
 1. `knowledge/installed.json` - resolve the default UML version.
 2. `knowledge/<version>/standard-profile/index.json` - an array of `{qualifiedName, kind, file,
-   source}` rows, one per stereotype (`kind` is always `"stereotype"`, `source` is `"StandardProfile"`).
-3. `knowledge/<version>/standard-profile/pages/<file>` - front matter with `baseMetaclasses` (which
-   metaclasses the stereotype can be applied to) plus `## Base metaclasses`, `## Tagged values`
+   source, profile, baseMetaclasses}` rows, one per stereotype (`kind` is always `"stereotype"`,
+   `source` is `"StandardProfile"`, `profile` is the owning profile's qualified name,
+   `baseMetaclasses` the metaclasses the stereotype itself extends). For "which stereotypes can be
+   applied to X" questions, filter this index on `baseMetaclasses` rather than opening every page.
+3. `knowledge/<version>/standard-profile/pages/<file>` - front matter with `profile` and
+   `baseMetaclasses` (which metaclasses the stereotype can be applied to) plus `## Base metaclasses`
+   (each marked *(required)* when the extension is required - every instance of that metaclass must
+   then carry the stereotype), `## Tagged values`
    (the stereotype's own attributes, i.e. what you'd set when applying it), and `## Description`
    (the OMG documentation comment, when present in the source XMI - some stereotypes have none).
 
 ## Answering
 
 - State the UML version.
-- Name every base metaclass a stereotype extends - a stereotype can apply to more than one (e.g.
+- Name every base metaclass a stereotype extends, and say when an extension is required - a
+  stereotype can apply to more than one (e.g.
   `«Trace»` extends both `Abstraction` and other classifiers in some editions - always check the
-  actual list rather than assuming one).
+  actual list rather than assuming one). A stereotype also applies wherever its generalizations do:
+  the listed base metaclasses are only the ones it extends itself, so check `## Generalizations` too.
 - Tag facts as **MODEL** tier (read directly from `StandardProfile.xmi`). If `## Description` says
   "_No description available._", say so plainly rather than inventing an explanation - the OMG
   Standard Profile XMI itself omits prose for some stereotypes.

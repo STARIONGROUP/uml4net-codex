@@ -68,6 +68,11 @@ namespace Uml4Net.Sage.MetamodelGen.Generators
                 builder.Append(" [").Append(end.Lower).Append("..").Append(end.Upper).Append(']');
 
                 var modifiers = new List<string>();
+                if (end.IsDerived)
+                {
+                    modifiers.Add("derived");
+                }
+
                 if (end.IsOrdered)
                 {
                     modifiers.Add("ordered");
@@ -81,6 +86,16 @@ namespace Uml4Net.Sage.MetamodelGen.Generators
                 if (end.IsComposite)
                 {
                     modifiers.Add("composite");
+                }
+
+                if (end.Aggregation == "shared")
+                {
+                    modifiers.Add("shared");
+                }
+
+                if (!end.IsNavigable)
+                {
+                    modifiers.Add("non-navigable");
                 }
 
                 if (modifiers.Count > 0)

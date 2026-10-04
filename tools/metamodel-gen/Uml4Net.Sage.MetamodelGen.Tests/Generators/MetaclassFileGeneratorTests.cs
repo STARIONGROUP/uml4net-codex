@@ -38,6 +38,17 @@ namespace Uml4Net.Sage.MetamodelGen.Tests.Generators
         }
 
         [Test]
+        public void Render_shows_read_only_default_value_and_opposite_on_owned_attributes()
+        {
+            var gadget = this.catalog.Classes.Single(c => c.Name == "Gadget");
+
+            var markdown = MetaclassFileGenerator.Render(gadget, this.graph);
+
+            Assert.That(markdown, Does.Contain("**count**: [Integer](Integer.md) [1..1] *(readOnly)*\n  - default `0`"));
+            Assert.That(markdown, Does.Contain("**container**: [Widget](Widget.md) [0..1]\n  - opposite `Fixture::A_container_gadgets::gadgets`"));
+        }
+
+        [Test]
         public void Render_includes_front_matter_generalizations_and_owned_features()
         {
             var gadget = this.catalog.Classes.Single(c => c.Name == "Gadget");

@@ -25,6 +25,7 @@ namespace Uml4Net.Sage.MetamodelGen
 
     using uml4net.Classification;
     using uml4net.CommonStructure;
+    using uml4net.Extensions;
     using uml4net.StructuredClassifiers;
 
     using Uml4Net.Sage.MetamodelGen.Model;
@@ -88,7 +89,15 @@ namespace Uml4Net.Sage.MetamodelGen
                 Subsets: property.SubsettedProperty.Where(p => !string.IsNullOrEmpty(p.QualifiedName)).Select(p => p.QualifiedName).ToList(),
                 OwnerQualifiedName: ownerQualifiedName,
                 Parameters: [],
-                Body: []);
+                Body: [],
+                IsStatic: property.IsStatic,
+                IsReadOnly: property.IsReadOnly,
+                IsDerivedUnion: property.IsDerivedUnion,
+                Aggregation: property.Aggregation.ToString().ToLowerInvariant(),
+                Opposite: property.Opposite?.QualifiedName,
+                DefaultValue: DefaultValueOf(property),
+                IsQuery: false,
+                IsAbstract: false);
         }
 
         /// <summary>
@@ -120,7 +129,7 @@ namespace Uml4Net.Sage.MetamodelGen
                 TypeName: type?.Name,
                 TypeQualifiedName: type?.QualifiedName,
                 Lower: operation.Lower ?? 0,
-                Upper: operation.Upper,
+                Upper: operation.Upper ?? "0",
                 IsDerived: false,
                 IsOrdered: operation.IsOrdered,
                 IsUnique: operation.IsUnique,
@@ -129,7 +138,31 @@ namespace Uml4Net.Sage.MetamodelGen
                 Subsets: [],
                 OwnerQualifiedName: ownerQualifiedName,
                 Parameters: parameters,
-                Body: ConstraintExtractor.FromOperationBody(operation));
+                Body: ConstraintExtractor.FromOperationBody(operation),
+                IsStatic: operation.IsStatic,
+                IsReadOnly: false,
+                IsDerivedUnion: false,
+                Aggregation: null,
+                Opposite: null,
+                DefaultValue: null,
+                IsQuery: operation.IsQuery,
+                IsAbstract: operation.IsAbstract);
+        }
+
+        /// <summary>
+        /// Renders <paramref name="property"/>'s default value in UML notation, or <see langword="null"/> when it has
+        /// none. uml4net.Extensions' <see cref="PropertyExtensions.QueryDefaultValueAsString(IProperty)"/> targets C#
+        /// code generation, so its spelling of an unlimited natural's <c>*</c> is mapped back.
+        /// </summary>
+        private static string? DefaultValueOf(IProperty property)
+        {
+            if (!property.QueryHasDefaultValue())
+            {
+                return null;
+            }
+
+            var value = property.QueryDefaultValueAsString();
+            return value == "int.MaxValue" ? "*" : value;
         }
     }
 }
