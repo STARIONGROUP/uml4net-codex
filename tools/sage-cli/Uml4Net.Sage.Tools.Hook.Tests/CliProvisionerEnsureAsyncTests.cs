@@ -163,7 +163,7 @@ namespace Uml4Net.Sage.Tools.Hook.Tests
             var provisioner = new CliProvisioner(new HttpClient(handler));
 
             string? resultPath = null;
-            Assert.DoesNotThrowAsync(async () => resultPath = await provisioner.EnsureAsync(this.pluginRoot, "1.0.0", default));
+            await Assert.DoesNotThrowAsync(async () => resultPath = await provisioner.EnsureAsync(this.pluginRoot, "1.0.0", default));
             Assert.That(resultPath, Is.Null);
         }
 

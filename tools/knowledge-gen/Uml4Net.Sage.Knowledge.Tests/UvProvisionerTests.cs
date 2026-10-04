@@ -170,7 +170,7 @@ namespace Uml4Net.Sage.Knowledge.Tests
             var provisioner = new UvProvisioner(new HttpClient(handler), this.cacheRoot);
 
             FileInfo? executable = null;
-            Assert.DoesNotThrowAsync(async () => executable = await provisioner.EnsureAsync());
+            await Assert.DoesNotThrowAsync(async () => executable = await provisioner.EnsureAsync());
             Assert.That(executable, Is.Null);
         }
 
