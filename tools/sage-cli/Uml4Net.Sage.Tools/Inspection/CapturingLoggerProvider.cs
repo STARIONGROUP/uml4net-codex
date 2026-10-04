@@ -27,28 +27,36 @@ namespace Uml4Net.Sage.Tools.Inspection
     using Microsoft.Extensions.Logging;
 
     /// <summary>
+    /// One captured log entry.
+    /// </summary>
+    /// <param name="Level">The entry's level.</param>
+    /// <param name="Category">The logger category, i.e. the full name of the logging type.</param>
+    /// <param name="Message">The formatted message.</param>
+    public sealed record CapturedLogEntry(LogLevel Level, string Category, string Message);
+
+    /// <summary>
     /// Captures <see cref="LogLevel.Warning"/>/<see cref="LogLevel.Error"/> log entries emitted while
-    /// <c>uml4net.xmi</c> reads a model, so <see cref="XmiInspector"/> can surface unresolved references
-    /// and unknown-element diagnostics as inspection findings instead of them only going to the console.
+    /// <c>uml4net.xmi</c> reads a model, so <see cref="XmiInspector"/> can surface the reader diagnostics its
+    /// structured checks don't already cover as inspection findings, instead of them only going to the console.
     /// </summary>
     public sealed class CapturingLoggerProvider : ILoggerProvider
     {
-        private readonly ConcurrentQueue<(LogLevel Level, string Message)> entries = new();
+        private readonly ConcurrentQueue<CapturedLogEntry> entries = new();
 
         /// <summary>
         /// Gets the captured warning/error entries, in the order they were logged.
         /// </summary>
-        public IReadOnlyCollection<(LogLevel Level, string Message)> Entries => this.entries;
+        public IReadOnlyCollection<CapturedLogEntry> Entries => this.entries;
 
         /// <inheritdoc/>
-        public ILogger CreateLogger(string categoryName) => new CapturingLogger(this.entries);
+        public ILogger CreateLogger(string categoryName) => new CapturingLogger(categoryName, this.entries);
 
         /// <inheritdoc/>
         public void Dispose()
         {
         }
 
-        private sealed class CapturingLogger(ConcurrentQueue<(LogLevel Level, string Message)> entries) : ILogger
+        private sealed class CapturingLogger(string category, ConcurrentQueue<CapturedLogEntry> entries) : ILogger
         {
             public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
 
@@ -61,7 +69,7 @@ namespace Uml4Net.Sage.Tools.Inspection
                     return;
                 }
 
-                entries.Enqueue((logLevel, formatter(state, exception)));
+                entries.Enqueue(new CapturedLogEntry(logLevel, category, formatter(state, exception)));
             }
         }
     }

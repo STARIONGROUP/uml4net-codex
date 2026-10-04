@@ -20,7 +20,10 @@
 
 namespace Uml4Net.Sage.Tools.Commands
 {
+    using System;
+    using System.Collections.Generic;
     using System.CommandLine;
+    using System.Globalization;
     using System.IO;
     using System.Text.Json;
 
@@ -37,6 +40,13 @@ namespace Uml4Net.Sage.Tools.Commands
     {
         private static readonly Argument<string> PathArgument = new("path") { Description = "Path to the .xmi/.uml file to inspect." };
 
+        private static readonly Option<string[]> PathmapOption = new("--pathmap")
+        {
+            Description = "Map a pathmap:// URI to a local file or directory, as <uri>=<path> (repeatable). "
+                + "A prefix such as pathmap://UML_LIBRARIES mapped to a directory resolves every document under it.",
+            Arity = ArgumentArity.ZeroOrMore,
+        };
+
         /// <summary>
         /// Builds the command.
         /// </summary>
@@ -44,6 +54,7 @@ namespace Uml4Net.Sage.Tools.Commands
         {
             var command = new Command("inspect", "Check a UML model file against the generated metamodel.");
             command.Add(PathArgument);
+            command.Add(PathmapOption);
             command.Add(GlobalOptions.RepositoryRoot);
             command.Add(GlobalOptions.Version);
             command.Add(GlobalOptions.Json);
@@ -67,11 +78,24 @@ namespace Uml4Net.Sage.Tools.Commands
                     return 1;
                 }
 
-                var report = XmiInspector.Inspect(modelPath, metamodelJsonPath, version);
+                var pathMaps = new Dictionary<string, string>(StringComparer.Ordinal);
+                foreach (var mapping in parseResult.GetValue(PathmapOption) ?? [])
+                {
+                    var separator = mapping.IndexOf('=');
+                    if (separator <= 0 || separator == mapping.Length - 1)
+                    {
+                        AnsiConsole.MarkupLineInterpolated($"[red]Invalid --pathmap '{mapping}':[/] expected <uri>=<path>, e.g. pathmap://UML_LIBRARIES=./libraries");
+                        return 1;
+                    }
+
+                    pathMaps[mapping[..separator]] = mapping[(separator + 1)..];
+                }
+
+                var report = XmiInspector.Inspect(modelPath, metamodelJsonPath, version, pathMaps);
 
                 if (parseResult.GetValue(GlobalOptions.Json))
                 {
-                    AnsiConsole.WriteLine(JsonSerializer.Serialize(report, new JsonSerializerOptions { WriteIndented = true }));
+                    Console.WriteLine(JsonSerializer.Serialize(report, new JsonSerializerOptions { WriteIndented = true }));
                     return report.Findings.Count > 0 ? 1 : 0;
                 }
 
@@ -82,13 +106,20 @@ namespace Uml4Net.Sage.Tools.Commands
                 }
 
                 var table = new Table();
+                table.AddColumn("Line");
                 table.AddColumn("Severity");
                 table.AddColumn("Category");
+                table.AddColumn("Element");
                 table.AddColumn("Message");
 
                 foreach (var finding in report.Findings)
                 {
-                    table.AddRow(finding.Severity == "error" ? "[red]error[/]" : "[yellow]warning[/]", finding.Category, finding.Message.EscapeMarkup());
+                    table.AddRow(
+                        finding.Line?.ToString(CultureInfo.InvariantCulture) ?? "",
+                        finding.Severity == "error" ? "[red]error[/]" : "[yellow]warning[/]",
+                        finding.Category,
+                        (finding.ElementXmiId ?? "").EscapeMarkup(),
+                        finding.Message.EscapeMarkup());
                 }
 
                 AnsiConsole.Write(table);

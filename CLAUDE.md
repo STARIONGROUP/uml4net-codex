@@ -60,7 +60,15 @@ before bumping either).
   resolves these by looking for a same-named local file under `LocalReferenceBasePath`, so as long
   as all four files sit together under their original names, no `PathMaps` entries are needed.
   (`PathMaps`/`pathmap://` still matters for the `inspect` verb's `XmiInspector`, which loads
-  arbitrary user-supplied XMI that may use that scheme, e.g. Enterprise Architect/MagicDraw exports.)
+  arbitrary user-supplied XMI that may use that scheme, e.g. Papyrus/MagicDraw exports - exposed as
+  `inspect --pathmap <uri>=<path>`. uml4net's `PathMaps` keys are whole document URIs, so
+  `XmiInspector` expands a prefix mapped to a directory into one entry per referenced document.)
+- **`XmiInspector` reads twice only when it must**: uml4net's structured
+  `XmiReferenceResolutionFailure`s are only reachable through the `UnresolvedReferencesException`
+  that `ThrowOnUnresolvedReferences` raises, which loses the model; so `inspect` reads with it on and,
+  only if it throws, reads again with it off. An abstract/unknown `xmi:type` makes the reader abort
+  outright, which is why `XmiDocumentScanner` checks `xmi:type`s and `xmi:id`s in a plain `XmlReader`
+  pass first.
 - **uml4net.xmi 9.x semantics to keep in mind**: as of 9.0.0 every derived property is implemented
   (no more `NotSupportedException`), so read derived properties directly rather than re-deriving them
   by hand. Behaviours that differ from what you might assume:
