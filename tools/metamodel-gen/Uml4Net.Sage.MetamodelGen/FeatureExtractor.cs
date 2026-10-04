@@ -20,6 +20,7 @@
 
 namespace Uml4Net.Sage.MetamodelGen
 {
+    using System.Collections.Generic;
     using System.Linq;
 
     using uml4net.Classification;
@@ -34,6 +35,37 @@ namespace Uml4Net.Sage.MetamodelGen
     /// </summary>
     public static class FeatureExtractor
     {
+        /// <summary>
+        /// Converts the attributes and operations <paramref name="classifier"/> inherits, per UML's
+        /// <see cref="IClassifier.InheritedMember"/>: non-private members of every ancestor, minus those a
+        /// more specific classifier redefines. Ordered by name, then owner (ordinal), for determinism.
+        /// </summary>
+        public static IReadOnlyList<FeatureInfo> InheritedFeaturesOf(IClassifier classifier)
+        {
+            var features = new List<FeatureInfo>();
+
+            foreach (var member in classifier.InheritedMember)
+            {
+                var ownerQualifiedName = ElementNames.NamespaceOf(member);
+
+                switch (member)
+                {
+                    case IProperty property:
+                        features.Add(FromProperty(property, ownerQualifiedName));
+                        break;
+                    case IOperation operation:
+                        features.Add(FromOperation(operation, ownerQualifiedName));
+                        break;
+                }
+            }
+
+            return features
+                .OrderBy(feature => feature.Name, System.StringComparer.Ordinal)
+                .ThenBy(feature => feature.OwnerQualifiedName, System.StringComparer.Ordinal)
+                .ThenBy(feature => feature.Kind, System.StringComparer.Ordinal)
+                .ToList();
+        }
+
         /// <summary>
         /// Converts an owned attribute.
         /// </summary>

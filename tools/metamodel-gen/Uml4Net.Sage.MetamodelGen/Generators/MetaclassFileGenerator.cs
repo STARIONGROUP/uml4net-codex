@@ -24,7 +24,6 @@ namespace Uml4Net.Sage.MetamodelGen.Generators
     using System.Linq;
     using System.Text;
 
-    using uml4net.CommonStructure;
     using uml4net.StructuredClassifiers;
 
     using Uml4Net.Sage.MetamodelGen;
@@ -43,13 +42,13 @@ namespace Uml4Net.Sage.MetamodelGen.Generators
         public static string Render(IClass @class, ClassGraph graph)
         {
             var qualifiedName = @class.QualifiedName;
-            var package = (@class.Namespace as INamedElement)?.QualifiedName ?? string.Empty;
+            var package = ElementNames.NamespaceOf(@class);
             var generalizations = graph.DirectSuperClassesOf(qualifiedName);
             var specializations = graph.DirectSubclassesOf(qualifiedName);
 
             var ownedAttributes = @class.OwnedAttribute.Select(a => FeatureExtractor.FromProperty(a, qualifiedName)).ToList();
             var ownedOperations = @class.OwnedOperation.Select(o => FeatureExtractor.FromOperation(o, qualifiedName)).ToList();
-            var inheritedFeatures = InheritedFeaturesOf(graph, qualifiedName);
+            var inheritedFeatures = FeatureExtractor.InheritedFeaturesOf(@class);
             var constraints = ConstraintExtractor.FromNamespace(@class);
 
             var builder = new StringBuilder();
@@ -81,7 +80,7 @@ namespace Uml4Net.Sage.MetamodelGen.Generators
             AppendConstraints(builder, constraints);
 
             builder.Append("\n## Description\n\n");
-            builder.Append(MarkdownHelpers.FirstNonBlankCommentBody(@class.OwnedComment) ?? "_No description available._").Append('\n');
+            builder.Append(MarkdownHelpers.Documentation(@class) ?? "_No description available._").Append('\n');
 
             return builder.ToString();
         }
@@ -113,31 +112,6 @@ namespace Uml4Net.Sage.MetamodelGen.Generators
                     builder.Append("```\n\n");
                 }
             }
-        }
-
-        private static IReadOnlyList<FeatureInfo> InheritedFeaturesOf(ClassGraph graph, string qualifiedName)
-        {
-            var result = new List<FeatureInfo>();
-
-            foreach (var ancestorQualifiedName in graph.AllAncestorsOf(qualifiedName))
-            {
-                if (!graph.TryGetClass(ancestorQualifiedName, out var ancestor) || ancestor is null)
-                {
-                    continue;
-                }
-
-                foreach (var attribute in ancestor.OwnedAttribute)
-                {
-                    result.Add(FeatureExtractor.FromProperty(attribute, ancestorQualifiedName));
-                }
-
-                foreach (var operation in ancestor.OwnedOperation)
-                {
-                    result.Add(FeatureExtractor.FromOperation(operation, ancestorQualifiedName));
-                }
-            }
-
-            return result;
         }
     }
 }

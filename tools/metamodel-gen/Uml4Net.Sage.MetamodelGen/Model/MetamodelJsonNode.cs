@@ -38,6 +38,7 @@ namespace Uml4Net.Sage.MetamodelGen.Model
         IReadOnlyList<FeatureInfo> OwnedAttributes,
         IReadOnlyList<FeatureInfo> OwnedOperations,
         IReadOnlyList<FeatureInfo> InheritedAttributes,
+        IReadOnlyList<FeatureInfo> InheritedOperations,
         IReadOnlyList<ConstraintInfo> Constraints);
 
     /// <summary>

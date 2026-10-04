@@ -25,6 +25,7 @@ namespace Uml4Net.Sage.MetamodelGen.Markdown
     using System.Text;
 
     using uml4net.CommonStructure;
+    using uml4net.Extensions;
 
     using Uml4Net.Sage.MetamodelGen.Model;
 
@@ -209,16 +210,15 @@ namespace Uml4Net.Sage.MetamodelGen.Markdown
         }
 
         /// <summary>
-        /// Finds the first non-blank <c>ownedComment</c> body among <paramref name="comments"/> (an element's
-        /// documentation is conventionally its first <see cref="IComment"/>, but XMI never guarantees exactly
-        /// one), trimmed of the trailing CR/LF the OMG XMI often encodes at the end of a comment body.
+        /// Gets <paramref name="element"/>'s documentation: every non-empty <c>ownedComment</c> body, joined, with
+        /// line breaks collapsed and inline HTML tags removed (uml4net.Extensions'
+        /// <see cref="uml4net.Extensions.ElementExtensions.QueryRawDocumentation"/>), or <see langword="null"/>
+        /// when the element has no documentation.
         /// </summary>
-        public static string? FirstNonBlankCommentBody(IEnumerable<IComment> comments)
+        public static string? Documentation(IElement element)
         {
-            return comments
-                .Select(comment => comment.Body)
-                .FirstOrDefault(body => !string.IsNullOrWhiteSpace(body))
-                ?.Trim();
+            var documentation = element.QueryRawDocumentation();
+            return string.IsNullOrWhiteSpace(documentation) ? null : documentation;
         }
     }
 }

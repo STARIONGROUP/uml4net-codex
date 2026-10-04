@@ -24,7 +24,6 @@ namespace Uml4Net.Sage.MetamodelGen.Generators
     using System.Linq;
     using System.Text;
 
-    using uml4net.CommonStructure;
     using uml4net.Packages;
 
     using Uml4Net.Sage.MetamodelGen.Markdown;
@@ -71,7 +70,7 @@ namespace Uml4Net.Sage.MetamodelGen.Generators
                 .OrderBy(name => name, System.StringComparer.Ordinal)
                 .ToList();
 
-            var documentation = MarkdownHelpers.FirstNonBlankCommentBody(stereotype.OwnedComment);
+            var documentation = MarkdownHelpers.Documentation(stereotype);
 
             var builder = new StringBuilder();
             builder.Append("---\n");
