@@ -1,5 +1,6 @@
 from spec_extract.clauses import detect_clauses
-from spec_extract.models import Line, PositionedWord, ReconstructedPage
+from spec_extract.models import Line, PositionedWord, ReconstructedPage, clause_number_key
+from spec_extract.normative import split_normative
 
 _BODY_SIZE = 10.0
 _HEADING_SIZE = 14.0
@@ -177,3 +178,125 @@ def test_detect_clauses_tracks_page_span_across_page_boundary() -> None:
     assert len(clauses) == 1
     assert clauses[0].page_start == 1
     assert clauses[0].page_end == 2
+
+
+def test_detect_clauses_continues_from_the_last_numbered_clause_into_lettered_annexes() -> None:
+    pages = [
+        ReconstructedPage(
+            number=1,
+            lines=(
+                _heading("10.3 Mapping", 100),
+                _line("Mapping body line one.", 120),
+                _line("Mapping body line two.", 140),
+                _line("Mapping body line three.", 160),
+                _line("Mapping body line four.", 180),
+                _line("Mapping body line five.", 200),
+                _line("Mapping body line six.", 220),
+                _line("Mapping body line seven.", 240),
+                _heading("10.4 Example", 260),
+                _line("Example body.", 280),
+            ),
+        ),
+        ReconstructedPage(
+            number=2,
+            lines=(
+                _heading("Annex A", 100),
+                _heading("Bibliography", 120),
+                _line("(informative)", 140),
+                _line("A cited reference.", 160),
+            ),
+        ),
+        ReconstructedPage(
+            number=3,
+            lines=(
+                _heading("Annex B: Canonical Form", 100),
+                _line("(normative)", 120),
+                _heading("B.1 Overview", 140),
+                _line("Overview body.", 160),
+                _heading("B.2 Constraints", 180),
+                _line("Constraints body.", 200),
+                _heading("B.2.1 First Constraint", 220),
+                _line("First constraint body.", 240),
+                _heading("B.3 Ordering", 260),
+                _line("Ordering body.", 280),
+            ),
+        ),
+    ]
+
+    clauses = detect_clauses(pages)
+
+    assert [clause.number for clause in clauses] == ["10.3", "10.4", "A", "B", "B.1", "B.2", "B.2.1", "B.3"]
+    example, bibliography, canonical = clauses[1], clauses[2], clauses[3]
+    assert [line.text for line in example.raw_lines] == ["Example body."]  # no annex text folded in
+    assert (example.page_start, example.page_end) == (1, 1)
+    assert bibliography.title == "Bibliography"
+    assert [line.text for line in bibliography.raw_lines] == ["A cited reference."]
+    assert canonical.title == "Canonical Form"
+    assert canonical.file_name == "B-canonical-form.md"
+    assert clauses[6].file_name == "B.2.1-first-constraint.md"
+
+
+def test_detect_clauses_takes_each_annex_designation_as_its_clauses_normative_flag() -> None:
+    pages = [
+        ReconstructedPage(
+            number=1,
+            lines=(
+                _heading("1 Scope", 100),
+                _line("Implementations shall conform.", 120),
+                _heading("Annex A: Diagrams", 140),
+                _line("(informative)", 160),
+                _line("Tools shall draw diagrams, but this annex is informative.", 180),
+                _heading("A.1 Shapes", 200),
+                _line("Shape body.", 220),
+                _heading("Annex B: Interchange", 240),
+                _line("(Normative)", 260),
+                _heading("B.1 Summary", 280),
+                _line("Summary body without any requirement keyword.", 300),
+            ),
+        )
+    ]
+
+    clauses = detect_clauses(pages)
+
+    assert [(clause.number, clause.annex_status) for clause in clauses] == [
+        ("1", None),
+        ("A", "informative"),
+        ("A.1", "informative"),
+        ("B", "normative"),
+        ("B.1", "normative"),
+    ]
+    for clause in clauses:
+        split_normative(clause)
+    assert [clause.is_normative for clause in clauses] == [True, False, False, True, True]
+    assert all("(informative)" not in line.text for line in clauses[1].raw_lines)
+
+
+def test_detect_clauses_ignores_body_sized_annex_references_and_out_of_order_annex_subclauses() -> None:
+    pages = [
+        ReconstructedPage(
+            number=1,
+            lines=(
+                _heading("2 Conformance", 100),
+                _line("Annex B specifies the canonical form.", 120),
+                _heading("B.3 Canonical Schema", 140),
+                _line("More conformance body.", 160),
+                _line("Even more conformance body.", 180),
+            ),
+        )
+    ]
+
+    clauses = detect_clauses(pages)
+
+    assert [clause.number for clause in clauses] == ["2"]
+    assert [line.text for line in clauses[0].raw_lines] == [
+        "Annex B specifies the canonical form.",
+        "B.3 Canonical Schema",
+        "More conformance body.",
+        "Even more conformance body.",
+    ]
+
+
+def test_clause_number_key_sorts_annexes_after_every_numbered_clause_in_letter_order() -> None:
+    numbers = ["B.10", "A", "22.3", "B.2.1", "9.3.2", "B", "B.2"]
+
+    assert sorted(numbers, key=clause_number_key) == ["9.3.2", "22.3", "A", "B", "B.2", "B.2.1", "B.10"]

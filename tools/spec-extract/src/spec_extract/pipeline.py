@@ -18,7 +18,7 @@ from pathlib import Path
 from spec_extract.clauses import detect_clauses
 from spec_extract.layout import reconstruct_pages
 from spec_extract.markdown import render_clause_markdown
-from spec_extract.models import Clause
+from spec_extract.models import Clause, clause_number_key
 from spec_extract.normative import split_normative
 from spec_extract.pdf_reader import read_positioned_pages
 
@@ -29,10 +29,6 @@ class ExtractionResult:
 
     clauses: list[Clause]
     output_dir: Path
-
-
-def _natural_key(number: str) -> tuple[int, ...]:
-    return tuple(int(part) for part in number.split("."))
 
 
 def _write_text(path: Path, content: str) -> None:
@@ -79,7 +75,7 @@ def extract_document(
     for clause in clauses:
         split_normative(clause)
 
-    clauses = sorted(clauses, key=lambda clause: _natural_key(clause.number))
+    clauses = sorted(clauses, key=lambda clause: clause_number_key(clause.number))
 
     for clause in clauses:
         markdown = render_clause_markdown(clause, document=document, version=version)
