@@ -25,8 +25,6 @@ namespace Uml4Net.Sage.MetamodelGen.Generators
     using System.Text;
     using System.Text.Json;
 
-    using uml4net.CommonStructure;
-
     using Uml4Net.Sage.MetamodelGen;
     using Uml4Net.Sage.MetamodelGen.Model;
 
@@ -45,19 +43,19 @@ namespace Uml4Net.Sage.MetamodelGen.Generators
 
             rows.AddRange(catalog.Classes
                 .Where(c => !string.IsNullOrEmpty(c.QualifiedName))
-                .Select(c => new MetamodelIndexRow(c.Name, "class", (c.Namespace as INamedElement)?.QualifiedName ?? string.Empty, c.QualifiedName, c.IsAbstract, $"elements/{c.Name}.md")));
+                .Select(c => new MetamodelIndexRow(c.Name, "class", ElementNames.NamespaceOf(c), c.QualifiedName, c.IsAbstract, $"elements/{c.Name}.md")));
 
             rows.AddRange(catalog.Enumerations
                 .Where(e => !string.IsNullOrEmpty(e.QualifiedName))
-                .Select(e => new MetamodelIndexRow(e.Name, "enumeration", (e.Namespace as INamedElement)?.QualifiedName ?? string.Empty, e.QualifiedName, false, $"elements/{e.Name}.md")));
+                .Select(e => new MetamodelIndexRow(e.Name, "enumeration", ElementNames.NamespaceOf(e), e.QualifiedName, false, $"elements/{e.Name}.md")));
 
             rows.AddRange(catalog.PrimitiveTypes
                 .Where(p => !string.IsNullOrEmpty(p.QualifiedName))
-                .Select(p => new MetamodelIndexRow(p.Name, "primitiveType", (p.Namespace as INamedElement)?.QualifiedName ?? string.Empty, p.QualifiedName, false, $"elements/{p.Name}.md")));
+                .Select(p => new MetamodelIndexRow(p.Name, "primitiveType", ElementNames.NamespaceOf(p), p.QualifiedName, false, $"elements/{p.Name}.md")));
 
             rows.AddRange(catalog.Associations
                 .Where(a => !string.IsNullOrEmpty(a.QualifiedName))
-                .Select(a => new MetamodelIndexRow(a.Name, "association", (a.Namespace as INamedElement)?.QualifiedName ?? string.Empty, a.QualifiedName, a.IsAbstract, $"elements/{a.Name}.md")));
+                .Select(a => new MetamodelIndexRow(a.Name, "association", ElementNames.NamespaceOf(a), a.QualifiedName, a.IsAbstract, $"elements/{a.Name}.md")));
 
             return rows.OrderBy(row => row.QualifiedName, System.StringComparer.Ordinal).ToList();
         }

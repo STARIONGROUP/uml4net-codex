@@ -20,11 +20,8 @@
 
 namespace Uml4Net.Sage.MetamodelGen.Generators
 {
-    using System.Collections.Generic;
     using System.Linq;
     using System.Text.Json;
-
-    using uml4net.CommonStructure;
 
     using Uml4Net.Sage.MetamodelGen;
     using Uml4Net.Sage.MetamodelGen.Model;
@@ -61,7 +58,7 @@ namespace Uml4Net.Sage.MetamodelGen.Generators
                 .Select(e => new EnumerationJsonNode(
                     e.Name,
                     e.QualifiedName,
-                    (e.Namespace as INamedElement)?.QualifiedName ?? string.Empty,
+                    ElementNames.NamespaceOf(e),
                     // ownedLiteral is ordered: keep the XMI's (normative) literal order, not alphabetical.
                     e.OwnedLiteral.Select(l => l.Name).ToList()))
                 .OrderBy(node => node.QualifiedName, System.StringComparer.Ordinal)
@@ -69,7 +66,7 @@ namespace Uml4Net.Sage.MetamodelGen.Generators
 
             var primitiveTypeNodes = catalog.PrimitiveTypes
                 .Where(p => !string.IsNullOrEmpty(p.QualifiedName))
-                .Select(p => new PrimitiveTypeJsonNode(p.Name, p.QualifiedName, (p.Namespace as INamedElement)?.QualifiedName ?? string.Empty))
+                .Select(p => new PrimitiveTypeJsonNode(p.Name, p.QualifiedName, ElementNames.NamespaceOf(p)))
                 .OrderBy(node => node.QualifiedName, System.StringComparer.Ordinal)
                 .ToList();
 
@@ -78,7 +75,7 @@ namespace Uml4Net.Sage.MetamodelGen.Generators
                 .Select(a => new AssociationJsonNode(
                     a.Name,
                     a.QualifiedName,
-                    (a.Namespace as INamedElement)?.QualifiedName ?? string.Empty,
+                    ElementNames.NamespaceOf(a),
                     a.IsAbstract,
                     a.IsDerived,
                     AssociationExtractor.MemberEndsOf(a)))
@@ -99,7 +96,7 @@ namespace Uml4Net.Sage.MetamodelGen.Generators
         private static MetamodelJsonNode BuildClassNode(uml4net.StructuredClassifiers.IClass @class, ClassGraph graph)
         {
             var qualifiedName = @class.QualifiedName;
-            var package = (@class.Namespace as INamedElement)?.QualifiedName ?? string.Empty;
+            var package = ElementNames.NamespaceOf(@class);
 
             var ownedAttributes = @class.OwnedAttribute
                 .Select(a => FeatureExtractor.FromProperty(a, qualifiedName))
@@ -111,14 +108,7 @@ namespace Uml4Net.Sage.MetamodelGen.Generators
                 .OrderBy(f => f.Name, System.StringComparer.Ordinal)
                 .ToList();
 
-            var inheritedAttributes = new List<FeatureInfo>();
-            foreach (var ancestorQualifiedName in graph.AllAncestorsOf(qualifiedName))
-            {
-                if (graph.TryGetClass(ancestorQualifiedName, out var ancestor) && ancestor is not null)
-                {
-                    inheritedAttributes.AddRange(ancestor.OwnedAttribute.Select(a => FeatureExtractor.FromProperty(a, ancestorQualifiedName)));
-                }
-            }
+            var inheritedFeatures = FeatureExtractor.InheritedFeaturesOf(@class);
 
             return new MetamodelJsonNode(
                 Name: @class.Name,
@@ -131,7 +121,8 @@ namespace Uml4Net.Sage.MetamodelGen.Generators
                 AllDescendants: graph.AllDescendantsOf(qualifiedName),
                 OwnedAttributes: ownedAttributes,
                 OwnedOperations: ownedOperations,
-                InheritedAttributes: inheritedAttributes.OrderBy(f => f.Name, System.StringComparer.Ordinal).ThenBy(f => f.OwnerQualifiedName, System.StringComparer.Ordinal).ToList(),
+                InheritedAttributes: inheritedFeatures.Where(f => f.Kind == "attribute").ToList(),
+                InheritedOperations: inheritedFeatures.Where(f => f.Kind == "operation").ToList(),
                 Constraints: ConstraintExtractor.FromNamespace(@class));
         }
     }

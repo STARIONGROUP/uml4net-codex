@@ -23,7 +23,6 @@ namespace Uml4Net.Sage.MetamodelGen.Generators
     using System.Linq;
     using System.Text;
 
-    using uml4net.CommonStructure;
     using uml4net.SimpleClassifiers;
 
     using Uml4Net.Sage.MetamodelGen.Markdown;
@@ -40,7 +39,7 @@ namespace Uml4Net.Sage.MetamodelGen.Generators
         /// </summary>
         public static string Render(IEnumeration enumeration)
         {
-            var package = (enumeration.Namespace as INamedElement)?.QualifiedName ?? string.Empty;
+            var package = ElementNames.NamespaceOf(enumeration);
 
             var builder = new StringBuilder();
             builder.Append("---\n");
@@ -66,7 +65,7 @@ namespace Uml4Net.Sage.MetamodelGen.Generators
                 {
                     builder.Append("- `").Append(literal.Name).Append('`');
 
-                    var literalDescription = MarkdownHelpers.FirstNonBlankCommentBody(literal.OwnedComment);
+                    var literalDescription = MarkdownHelpers.Documentation(literal);
                     if (literalDescription is not null)
                     {
                         builder.Append(" - ").Append(literalDescription);
@@ -77,7 +76,7 @@ namespace Uml4Net.Sage.MetamodelGen.Generators
             }
 
             builder.Append("\n## Description\n\n");
-            builder.Append(MarkdownHelpers.FirstNonBlankCommentBody(enumeration.OwnedComment) ?? "_No description available._").Append('\n');
+            builder.Append(MarkdownHelpers.Documentation(enumeration) ?? "_No description available._").Append('\n');
 
             return builder.ToString();
         }

@@ -60,7 +60,7 @@
     },
     "classNode": {
       "type": "object",
-      "required": ["name", "qualifiedName", "package", "isAbstract", "directSuperClasses", "directSubclasses", "allAncestors", "allDescendants", "ownedAttributes", "ownedOperations", "inheritedAttributes", "constraints"],
+      "required": ["name", "qualifiedName", "package", "isAbstract", "directSuperClasses", "directSubclasses", "allAncestors", "allDescendants", "ownedAttributes", "ownedOperations", "inheritedAttributes", "inheritedOperations", "constraints"],
       "properties": {
         "name": { "type": "string" },
         "qualifiedName": { "type": "string" },
@@ -72,7 +72,16 @@
         "allDescendants": { "type": "array", "items": { "type": "string" } },
         "ownedAttributes": { "type": "array", "items": { "$ref": "#/definitions/feature" } },
         "ownedOperations": { "type": "array", "items": { "$ref": "#/definitions/feature" } },
-        "inheritedAttributes": { "type": "array", "items": { "$ref": "#/definitions/feature" } },
+        "inheritedAttributes": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/feature" },
+          "description": "UML Classifier::inheritedMember restricted to attributes: every non-private attribute of every ancestor, minus those redefined by a more specific classifier."
+        },
+        "inheritedOperations": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/feature" },
+          "description": "UML Classifier::inheritedMember restricted to operations: every non-private operation of every ancestor, minus those redefined by a more specific classifier."
+        },
         "constraints": { "type": "array", "items": { "$ref": "#/definitions/constraint" } }
       }
     },

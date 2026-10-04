@@ -47,6 +47,18 @@
 				<lowerValue xmi:type="uml:LiteralInteger" xmi:id="Gadget-container-lv" value="0"/>
 				<upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="Gadget-container-uv" value="1"/>
 			</ownedAttribute>
+			<ownedOperation xmi:type="uml:Operation" xmi:id="Gadget-describe" name="describe" redefinedOperation="Widget-describe">
+				<ownedParameter xmi:type="uml:Parameter" xmi:id="Gadget-describe-result" name="result" direction="return">
+					<type xmi:type="uml:PrimitiveType" href="http://example.com/spec/Fixture/1.0/FixturePrimitiveTypes.xmi#String"/>
+					<lowerValue xmi:type="uml:LiteralInteger" xmi:id="Gadget-describe-result-lv" value="1"/>
+					<upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="Gadget-describe-result-uv" value="1"/>
+				</ownedParameter>
+				<ownedParameter xmi:type="uml:Parameter" xmi:id="Gadget-describe-verbosity" name="verbosity">
+					<type xmi:type="uml:PrimitiveType" href="http://example.com/spec/Fixture/1.0/FixturePrimitiveTypes.xmi#Integer"/>
+					<lowerValue xmi:type="uml:LiteralInteger" xmi:id="Gadget-describe-verbosity-lv" value="1"/>
+					<upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="Gadget-describe-verbosity-uv" value="1"/>
+				</ownedParameter>
+			</ownedOperation>
 		</packagedElement>
 		<packagedElement xmi:type="uml:Class" xmi:id="SuperGadget" name="SuperGadget" isAbstract="false">
 			<generalization xmi:type="uml:Generalization" xmi:id="SuperGadget-gen" general="Gadget"/>
