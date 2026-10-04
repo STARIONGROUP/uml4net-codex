@@ -27,6 +27,7 @@ namespace Uml4Net.Sage.MetamodelGen
     using uml4net.CommonStructure;
     using uml4net.Extensions;
     using uml4net.StructuredClassifiers;
+    using uml4net.Values;
 
     using Uml4Net.Sage.MetamodelGen.Model;
 
@@ -152,13 +153,20 @@ namespace Uml4Net.Sage.MetamodelGen
         /// <summary>
         /// Renders <paramref name="property"/>'s default value in UML notation, or <see langword="null"/> when it has
         /// none. uml4net.Extensions' <see cref="PropertyExtensions.QueryDefaultValueAsString(IProperty)"/> targets C#
-        /// code generation, so its spelling of an unlimited natural's <c>*</c> is mapped back.
+        /// code generation, so its spelling of an unlimited natural's <c>*</c> is mapped back. A
+        /// <c>LiteralUnlimitedNatural</c> written without a <c>value</c> (as OMG's own XMI does) holds that literal's
+        /// default, <c>0</c>.
         /// </summary>
         private static string? DefaultValueOf(IProperty property)
         {
             if (!property.QueryHasDefaultValue())
             {
                 return null;
+            }
+
+            if (property.DefaultValue.First() is ILiteralUnlimitedNatural { Value: null })
+            {
+                return "0";
             }
 
             var value = property.QueryDefaultValueAsString();
