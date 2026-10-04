@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:uml="http://www.omg.org/spec/UML/20161101">
+	<uml:Package xmi:type="uml:Package" xmi:id="_0" name="SampleModel">
+		<packagedElement xmi:type="uml:Classifier" xmi:id="Vehicle" name="Vehicle"/>
+		<packagedElement xmi:type="uml:Gizmo" xmi:id="Widget" name="Widget"/>
+		<packagedElement xmi:type="uml:Class" xmi:id="Car" name="Car"/>
+	</uml:Package>
+</xmi:XMI>
