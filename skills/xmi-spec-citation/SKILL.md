@@ -51,11 +51,12 @@ Beyond the general PDF-extraction caveats already documented for `uml-spec-citat
 (`tools/spec-extract/README.md`, "Known limitations" - garbled figure-page text, occasional mojibake
 bullets), two things specific to this corpus are worth knowing:
 
-- **Letter-prefixed annexes aren't extracted as clauses.** The extractor's heading detection only
-  matches dotted-decimal numbers (e.g. "7.10.2"), not "Annex A"-style headings - confirmed against
-  the real XMI 2.5.1 document, which does reference annexes in body text without them appearing as
-  their own clauses. If a question is about content that would live in an annex, say plainly that it
-  isn't available via this index rather than implying full coverage.
+- **Annexes are clauses too, numbered by letter.** Annex B ("Canonical XMI", normative) is clause
+  `B` with subclauses such as `B.2` and `B.5.2`; cite them as "Annex B" / "B.5.2", never under the
+  last numbered clause (10.4). An annex clause's `normative` flag is the annex's own
+  "(normative)"/"(informative)" designation, not the `shall`/`must` heuristic below. A knowledge
+  base generated before uml4net-sage fixed this (issue #26) folds the annex text into clause 10.4 -
+  if `index.md` has no `B` row, suggest regenerating it.
 - **A materially lower fraction of clauses are tagged `normative: true`** than in the UML spec (about
   16% in the real document, vs. UML's much higher ratio). This isn't an extraction defect: XMI states
   many of its rules declaratively ("The XMI element name is...") rather than with `shall`/`must`

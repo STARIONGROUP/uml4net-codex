@@ -41,7 +41,7 @@
         "type": "object",
         "required": ["clause", "title", "document", "pages", "normative", "file"],
         "properties": {
-          "clause": { "type": "string", "description": "Dotted clause number, e.g. \"9.3.2\"." },
+          "clause": { "type": "string", "description": "Clause number: dotted-decimal for the numbered clauses (e.g. \"9.3.2\"), the annex letter for an annex itself (e.g. \"B\" for Annex B), or letter-prefixed for an annex subclause (e.g. \"B.5.2\")." },
           "title": { "type": "string" },
           "document": { "type": "string", "description": "Which OMG document these clauses were extracted from, e.g. \"UML\" or \"XMI\" - disambiguates rows from the two structurally-identical spec index files." },
           "pages": { "type": "string", "description": "A single page number or an \"N-M\" range." },

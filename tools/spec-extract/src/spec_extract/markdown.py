@@ -26,7 +26,7 @@ def render_clause_markdown(clause: Clause, *, document: str, version: str) -> st
         ]
     )
 
-    body_parts = [f"# {clause.number} {clause.title}"]
+    body_parts = [f"# {clause.heading_label} {clause.title}"]
     for paragraph in clause.paragraphs:
         if paragraph.informative_kind:
             body_parts.append(f"<!-- informative:{paragraph.informative_kind} -->")

@@ -17,8 +17,12 @@ Five pure, independently-tested stages, each in its own module under `src/spec_e
    every page.
 3. **`clauses.py`** — detects clause headings via a successor-numbering heuristic (a heading
    number must be a plausible child/sibling of the previous one), skipping the Table of Contents.
+   Lettered annexes ("Annex B", "B.5.2 ...") continue the sequence after the last numbered clause;
+   an annex's "(normative)"/"(informative)" designation becomes the `normative` flag of the annex
+   and all of its subclauses.
 4. **`normative.py`** — groups a clause's lines into paragraphs and tags each as normative
-   (contains "shall"/"must") or informative (`NOTE`/`EXAMPLE`).
+   (contains "shall"/"must") or informative (`NOTE`/`EXAMPLE`). A numbered clause is tagged
+   normative when any of its paragraphs is; an annex clause takes its annex's designation instead.
 5. **`markdown.py`** — renders one clause to markdown with YAML front matter.
 
 `pipeline.py` orchestrates all five across a whole PDF and writes:

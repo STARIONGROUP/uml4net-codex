@@ -25,7 +25,7 @@ Report back the clause number(s), title(s), and a short attributed quote per mat
 clause text unless asked. State that this is the **XMI** specification (not UML). If a clause's text
 looks garbled (common for clauses dominated by a diagram figure - see
 `tools/spec-extract/README.md`, "Known limitations"), say so rather than presenting it as a clean
-quote. Note that letter-prefixed annexes (e.g. "Annex A") are not extracted as clauses in this
-corpus, and that a materially lower fraction of clauses are tagged `normative: true` than in the UML
+quote. Annexes are clauses numbered by letter (Annex B "Canonical XMI" is clause `B`, with
+subclauses such as `B.5.2`) - cite them as such. Note that a materially lower fraction of clauses are tagged `normative: true` than in the UML
 spec - XMI states many rules declaratively rather than with `shall`/`must` wording, so don't imply a
 clause is merely informative just because it wasn't classified as normative.
