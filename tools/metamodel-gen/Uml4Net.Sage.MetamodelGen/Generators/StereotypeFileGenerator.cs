@@ -20,6 +20,7 @@
 
 namespace Uml4Net.Sage.MetamodelGen.Generators
 {
+    using System.Collections.Generic;
     using System.Linq;
     using System.Text;
 
@@ -35,8 +36,6 @@ namespace Uml4Net.Sage.MetamodelGen.Generators
     /// </summary>
     public static class StereotypeFileGenerator
     {
-        private const string BaseAttributePrefix = "base_";
-
         /// <summary>
         /// Renders the markdown page for <paramref name="stereotype"/>.
         /// </summary>
@@ -47,13 +46,11 @@ namespace Uml4Net.Sage.MetamodelGen.Generators
         /// (e.g. <c>Document</c> extends <c>File</c>) the same way <see cref="MetaclassFileGenerator"/> does for metaclasses.
         /// </param>
         /// <remarks>
-        /// Base metaclasses are derived from the stereotype's own "base_&lt;Metaclass&gt;" owned attributes
-        /// (the OMG Standard Profile's fixed naming convention for the implicit extension-end property),
-        /// rather than from <see cref="IClass.Extension"/>/<see cref="IExtension.Metaclass"/>. As of
-        /// uml4net.xmi 8.5.1, <see cref="IClass.Extension"/> itself is implemented, but the follow-on
-        /// <see cref="IExtension.Metaclass"/>/<see cref="IExtension.IsRequired"/> still throw
-        /// <see cref="System.NotSupportedException"/>, so the naming-convention approach remains necessary
-        /// (and is simpler besides - no need to resolve which extension-end is the stereotype's own).
+        /// Base metaclasses are read from the stereotype's own <see cref="IExtension"/>s via
+        /// <see cref="IExtension.Metaclass"/>. <see cref="IClass.Extension"/> also returns the extensions of the
+        /// stereotype's specializations (its OCL includes <c>endTypes.allParents()</c>), so only extensions whose
+        /// <see cref="IExtensionEnd"/> is typed by this very stereotype are kept - an inherited extension is reported
+        /// on the specializing stereotype, not repeated on its general.
         /// </remarks>
         public static string Render(IStereotype stereotype, ClassGraph graph)
         {
@@ -61,16 +58,15 @@ namespace Uml4Net.Sage.MetamodelGen.Generators
             var generalizations = graph.DirectSuperClassesOf(qualifiedName);
             var specializations = graph.DirectSubclassesOf(qualifiedName);
 
-            var ownedAttributes = stereotype.OwnedAttribute.ToList();
-
-            var baseMetaclasses = ownedAttributes
-                .Where(attribute => attribute.Name?.StartsWith(BaseAttributePrefix, System.StringComparison.Ordinal) == true)
-                .Select(attribute => (attribute.Type as INamedElement)?.Name ?? attribute.Name[BaseAttributePrefix.Length..])
+            var baseMetaclasses = OwnExtensions(stereotype)
+                .Select(extension => extension.Metaclass?.Name)
+                .Where(name => !string.IsNullOrEmpty(name))
+                .Distinct(System.StringComparer.Ordinal)
                 .OrderBy(name => name, System.StringComparer.Ordinal)
                 .ToList();
 
-            var taggedValues = ownedAttributes
-                .Where(attribute => attribute.Name?.StartsWith(BaseAttributePrefix, System.StringComparison.Ordinal) != true)
+            var taggedValues = stereotype.OwnedAttribute
+                .Where(attribute => attribute.Association is not IExtension)
                 .Select(attribute => attribute.Name)
                 .OrderBy(name => name, System.StringComparer.Ordinal)
                 .ToList();
@@ -100,6 +96,18 @@ namespace Uml4Net.Sage.MetamodelGen.Generators
             builder.Append(string.IsNullOrWhiteSpace(documentation) ? "_No description available._" : documentation).Append('\n');
 
             return builder.ToString();
+        }
+
+        /// <summary>
+        /// Gets the <see cref="IExtension"/>s through which <paramref name="stereotype"/> itself (not one of its
+        /// specializations) extends a metaclass.
+        /// </summary>
+        /// <param name="stereotype">The stereotype whose extensions are queried.</param>
+        /// <returns>The stereotype's own extensions.</returns>
+        public static IEnumerable<IExtension> OwnExtensions(IStereotype stereotype)
+        {
+            return stereotype.Extension
+                .Where(extension => extension.OwnedEnd.Any(end => ReferenceEquals(end.Type, stereotype)));
         }
     }
 }

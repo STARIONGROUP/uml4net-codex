@@ -61,15 +61,21 @@ before bumping either).
   as all four files sit together under their original names, no `PathMaps` entries are needed.
   (`PathMaps`/`pathmap://` still matters for the `inspect` verb's `XmiInspector`, which loads
   arbitrary user-supplied XMI that may use that scheme, e.g. Enterprise Architect/MagicDraw exports.)
-- **Known uml4net.xmi 8.x gaps**: as of uml4net.xmi 8.5.0, `IOperation.Type`/`Lower`/`Upper`/
-  `IsOrdered`/`IsUnique` and `IClass.Extension` were derived properties uml4net hadn't implemented yet
-  - they threw `NotSupportedException`. uml4net.xmi 8.5.1 fixed the `IOperation` gap (and
-  `IClass.Extension` itself), so `FeatureExtractor.FromOperation` now reads those directly rather than
-  duplicating the return-parameter lookup by hand. `IExtension.Metaclass`/`IsRequired` still throw as
-  of 8.5.1, though, so `StereotypeFileGenerator` still derives a stereotype's base metaclass from its
-  own `base_<Metaclass>` owned attribute (the OMG Standard Profile's fixed naming convention) instead
-  of walking `IClass.Extension` → `IExtension.Metaclass`. Re-check that workaround if `uml4net.xmi` is
-  upgraded past 8.5.1 - the underlying bug may be fixed.
+- **uml4net.xmi 9.x semantics to keep in mind**: as of 9.0.0 every derived property is implemented
+  (no more `NotSupportedException`), so read derived properties directly rather than re-deriving them
+  by hand. Behaviours that differ from what you might assume:
+  - Optional `[0..1]` value properties are nullable: `IOperation.Lower` is `int?` and, like
+    `IOperation.Upper`, is null for an operation with no return parameter (sage reports `0`/`"0"`,
+    matching what 8.x returned); `INamedElement.Visibility` is `VisibilityKind?`.
+  - `INamedElement.QualifiedName` is null when the element or any enclosing namespace is unnamed.
+  - `IProperty.IsComposite` follows the spec strictly (`aggregation == composite`).
+  - `IClass.Extension` follows the OCL's `endTypes.allParents()` branch, so a stereotype's `Extension`
+    also lists its specializations' extensions - `StereotypeFileGenerator.OwnExtensions` filters to
+    the extensions whose `ExtensionEnd` is typed by that stereotype itself.
+- **Why the full CLI is not NativeAOT**: `uml4net.xmi` (reflection-heavy), Spectre.Console and
+  System.CommandLine are not trim/AOT-friendly, so the CLI ships as a self-contained (non-AOT) publish
+  per runtime identifier (`.github/workflows/release.yml`). Only the dependency-free SessionStart hook
+  (`tools/sage-cli/Uml4Net.Sage.Tools.Hook`) is NativeAOT - see `hooks/native/README.md`.
 - **`PythonSpecExtractRunner`'s `uv` fallback**: verbatim spec citation (both `uml-spec-citation` and
   `xmi-spec-citation`) shells out to
   `tools/spec-extract` (Python/pdfplumber). It first tries a `.venv` under that directory or a system
