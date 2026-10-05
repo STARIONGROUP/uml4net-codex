@@ -63,6 +63,10 @@ namespace Uml4Net.Sage.Tools.Inspection
     {
         private const string PathmapScheme = "pathmap://";
 
+        private const string Error = "error";
+
+        private const string Warning = "warning";
+
         /// <summary>
         /// Log categories whose messages the structured checks already report (unresolved references and
         /// stereotype application resolution), so they are not repeated as <c>reader-diagnostic</c>s.
@@ -118,7 +122,7 @@ namespace Uml4Net.Sage.Tools.Inspection
             catch (Exception exception)
             {
                 findings.Add(new InspectionFinding(
-                    "error",
+                    Error,
                     "read-aborted",
                     null,
                     $"uml4net.xmi could not read the model ({exception.GetType().Name}: {exception.Message}), so only the xmi:type and xmi:id checks ran."));
@@ -146,7 +150,7 @@ namespace Uml4Net.Sage.Tools.Inspection
 
             foreach (var entry in loggerProvider.Entries.Where(IsUnreportedDiagnostic))
             {
-                findings.Add(new InspectionFinding(entry.Level == LogLevel.Error ? "error" : "warning", "reader-diagnostic", null, entry.Message));
+                findings.Add(new InspectionFinding(entry.Level == LogLevel.Error ? Error : Warning, "reader-diagnostic", null, entry.Message));
             }
 
             var ordered = findings
@@ -190,7 +194,7 @@ namespace Uml4Net.Sage.Tools.Inspection
                 if (!facts.IsKnown(element.Metaclass))
                 {
                     findings.Add(new InspectionFinding(
-                        "error",
+                        Error,
                         "unknown-metaclass",
                         element.XmiId,
                         $"xmi:type '{element.Metaclass}' is not a metaclass of the UML metamodel.",
@@ -199,7 +203,7 @@ namespace Uml4Net.Sage.Tools.Inspection
                 else if (facts.IsAbstract(element.Metaclass))
                 {
                     findings.Add(new InspectionFinding(
-                        "error",
+                        Error,
                         "abstract-instantiation",
                         element.XmiId,
                         $"xmi:type '{element.Metaclass}' is abstract in the UML metamodel and cannot be instantiated directly.",
@@ -213,7 +217,7 @@ namespace Uml4Net.Sage.Tools.Inspection
             foreach (var (xmiId, lines) in scan.XmiIdLines.Where(entry => entry.Value.Count > 1))
             {
                 findings.Add(new InspectionFinding(
-                    "error",
+                    Error,
                     "duplicate-xmi-id",
                     xmiId,
                     $"xmi:id '{xmiId}' is declared {lines.Count} times (lines {string.Join(", ", lines)}); a reader keeps only the first.",
@@ -249,7 +253,7 @@ namespace Uml4Net.Sage.Tools.Inspection
                 };
 
                 findings.Add(new InspectionFinding(
-                    "error",
+                    Error,
                     failure.Kind == XmiReferenceResolutionFailureKind.NotFound ? "unresolved-reference" : "invalid-reference",
                     failure.ElementXmiId,
                     message,
@@ -278,21 +282,28 @@ namespace Uml4Net.Sage.Tools.Inspection
                     continue;
                 }
 
-                var upper = feature.Upper == "*" ? int.MaxValue : int.TryParse(feature.Upper, out var parsed) ? parsed : int.MaxValue;
-                if (count >= feature.Lower && count <= upper)
+                if (count >= feature.Lower && count <= feature.UpperBound)
                 {
                     continue;
                 }
 
-                var name = (element as INamedElement)?.Name;
-                var subject = string.IsNullOrEmpty(name) ? $"{metaclass} '{xmiElement.XmiId}'" : $"{metaclass} '{name}' ({xmiElement.XmiId})";
                 findings.Add(new InspectionFinding(
-                    "error",
+                    Error,
                     "multiplicity-violation",
                     xmiElement.XmiId,
-                    $"{subject}: {feature.OwnerName}::{feature.Name} [{feature.Lower}..{feature.Upper}] has {count} value(s).",
+                    $"{Describe(element, metaclass, xmiElement.XmiId)}: {feature.OwnerName}::{feature.Name} [{feature.Lower}..{feature.Upper}] has {count} value(s).",
                     LineOf(scan, xmiElement.XmiId)));
             }
+        }
+
+        /// <summary>
+        /// Describes an element for a finding message, e.g. <c>Class 'Car' (Car)</c>, or <c>Generalization 'Car-gen'</c>
+        /// for an unnamed one.
+        /// </summary>
+        private static string Describe(IElement element, string metaclass, string xmiId)
+        {
+            var name = (element as INamedElement)?.Name;
+            return string.IsNullOrEmpty(name) ? $"{metaclass} '{xmiId}'" : $"{metaclass} '{name}' ({xmiId})";
         }
 
         /// <summary>
@@ -339,7 +350,7 @@ namespace Uml4Net.Sage.Tools.Inspection
                 if (application.ExtendedElement is null)
                 {
                     findings.Add(new InspectionFinding(
-                        "error",
+                        Error,
                         "stereotype-target-unresolved",
                         application.XmiId,
                         $"«{application.StereoTypeName}» is applied to '{application.ElementIdentifier}' (base_{application.MetaClass}), which could not be found.",
@@ -350,7 +361,7 @@ namespace Uml4Net.Sage.Tools.Inspection
                 if (application.Stereotype is null)
                 {
                     findings.Add(new InspectionFinding(
-                        "warning",
+                        Warning,
                         "stereotype-unresolved",
                         application.XmiId,
                         $"«{application.StereoTypeName}» from profile '{application.ProfileName}' could not be resolved, so its application to '{application.ElementIdentifier}' was not checked - is the profile next to the model, or mapped with --pathmap?",
@@ -369,7 +380,7 @@ namespace Uml4Net.Sage.Tools.Inspection
                 if (allowed.Count > 0 && !allowed.Any(metaclass => facts.Conforms(targetMetaclass, metaclass)))
                 {
                     findings.Add(new InspectionFinding(
-                        "error",
+                        Error,
                         "stereotype-misapplied",
                         application.XmiId,
                         $"«{application.Stereotype.Name}» extends {string.Join(", ", allowed)}, but is applied to {targetMetaclass} '{application.ElementIdentifier}'.",
