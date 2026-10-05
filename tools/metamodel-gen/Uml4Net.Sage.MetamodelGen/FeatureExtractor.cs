@@ -164,7 +164,7 @@ namespace Uml4Net.Sage.MetamodelGen
                 return null;
             }
 
-            if (property.DefaultValue.First() is ILiteralUnlimitedNatural { Value: null })
+            if (property.DefaultValue[0] is ILiteralUnlimitedNatural { Value: null })
             {
                 return "0";
             }

@@ -75,61 +75,24 @@ namespace Uml4Net.Sage.Tools.Inspection
                 }
 
                 var line = lineInfo.LineNumber;
-                var elementIsUml = IsUmlNamespace(reader.NamespaceURI);
-                var elementLocalName = reader.LocalName;
-                string? xmiId = null;
-                string? xmiType = null;
-                string? href = null;
+                var attributes = ReadAttributes(reader);
 
-                if (reader.MoveToFirstAttribute())
+                if (attributes.XmiId is not null)
                 {
-                    do
-                    {
-                        if (IsXmiNamespace(reader.NamespaceURI) && reader.LocalName == "id")
-                        {
-                            xmiId = reader.Value;
-                        }
-                        else if (IsXmiNamespace(reader.NamespaceURI) && reader.LocalName == "type")
-                        {
-                            xmiType = reader.Value;
-                        }
-                        else if (reader.LocalName == "href" && reader.NamespaceURI.Length == 0)
-                        {
-                            href = reader.Value;
-                        }
-                    }
-                    while (reader.MoveToNextAttribute());
-
-                    reader.MoveToElement();
+                    RecordXmiId(xmiIdLines, attributes.XmiId, line);
                 }
 
-                if (xmiId is not null)
+                if (attributes.Href is not null)
                 {
-                    if (!xmiIdLines.TryGetValue(xmiId, out var lines))
-                    {
-                        lines = [];
-                        xmiIdLines[xmiId] = lines;
-                    }
-
-                    lines.Add(line);
-                }
-
-                if (href is not null)
-                {
-                    if (href.StartsWith(PathmapScheme, StringComparison.Ordinal))
-                    {
-                        var fragment = href.IndexOf('#');
-                        pathmapDocuments.Add(fragment < 0 ? href : href[..fragment]);
-                    }
-
                     // a proxy for an element declared elsewhere, not a declaration
+                    RecordPathmapDocument(pathmapDocuments, attributes.Href);
                     continue;
                 }
 
-                var metaclass = MetaclassOf(reader, xmiType, elementIsUml, elementLocalName);
+                var metaclass = MetaclassOf(reader, attributes.XmiType);
                 if (metaclass is not null)
                 {
-                    elements.Add(new ScannedElement(metaclass, xmiId, line));
+                    elements.Add(new ScannedElement(metaclass, attributes.XmiId, line));
                 }
             }
 
@@ -142,17 +105,80 @@ namespace Uml4Net.Sage.Tools.Inspection
             return new XmiDocumentScan(elements, readOnlyLines, [.. pathmapDocuments]);
         }
 
-        private static string? MetaclassOf(XmlReader reader, string? xmiType, bool elementIsUml, string elementLocalName)
+        /// <summary>
+        /// Reads the <c>xmi:id</c>, <c>xmi:type</c> and <c>href</c> attributes of the element <paramref name="reader"/>
+        /// is positioned on, leaving it positioned on that element.
+        /// </summary>
+        private static (string? XmiId, string? XmiType, string? Href) ReadAttributes(XmlReader reader)
         {
-            if (xmiType is not null)
+            string? xmiId = null;
+            string? xmiType = null;
+            string? href = null;
+
+            if (!reader.MoveToFirstAttribute())
             {
-                var separator = xmiType.IndexOf(':');
-                var prefix = separator < 0 ? string.Empty : xmiType[..separator];
-                var namespaceUri = reader.LookupNamespace(prefix);
-                return namespaceUri is not null && IsUmlNamespace(namespaceUri) ? xmiType[(separator + 1)..] : null;
+                return (xmiId, xmiType, href);
             }
 
-            return elementIsUml ? elementLocalName : null;
+            do
+            {
+                switch (reader.LocalName)
+                {
+                    case "id" when IsXmiNamespace(reader.NamespaceURI):
+                        xmiId = reader.Value;
+                        break;
+                    case "type" when IsXmiNamespace(reader.NamespaceURI):
+                        xmiType = reader.Value;
+                        break;
+                    case "href" when reader.NamespaceURI.Length == 0:
+                        href = reader.Value;
+                        break;
+                }
+            }
+            while (reader.MoveToNextAttribute());
+
+            reader.MoveToElement();
+            return (xmiId, xmiType, href);
+        }
+
+        private static void RecordXmiId(Dictionary<string, List<int>> xmiIdLines, string xmiId, int line)
+        {
+            if (!xmiIdLines.TryGetValue(xmiId, out var lines))
+            {
+                lines = [];
+                xmiIdLines[xmiId] = lines;
+            }
+
+            lines.Add(line);
+        }
+
+        private static void RecordPathmapDocument(SortedSet<string> pathmapDocuments, string href)
+        {
+            if (!href.StartsWith(PathmapScheme, StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            var fragment = href.IndexOf('#');
+            pathmapDocuments.Add(fragment < 0 ? href : href[..fragment]);
+        }
+
+        /// <summary>
+        /// Gets the UML metaclass the element <paramref name="reader"/> is positioned on declares: the local part of its
+        /// <c>xmi:type</c> when that is in a UML namespace, otherwise - for an element without <c>xmi:type</c>, such as a
+        /// root <c>&lt;uml:Package&gt;</c> - its own name when the element itself is in a UML namespace.
+        /// </summary>
+        private static string? MetaclassOf(XmlReader reader, string? xmiType)
+        {
+            if (xmiType is null)
+            {
+                return IsUmlNamespace(reader.NamespaceURI) ? reader.LocalName : null;
+            }
+
+            var separator = xmiType.IndexOf(':');
+            var prefix = separator < 0 ? string.Empty : xmiType[..separator];
+            var namespaceUri = reader.LookupNamespace(prefix);
+            return namespaceUri is not null && IsUmlNamespace(namespaceUri) ? xmiType[(separator + 1)..] : null;
         }
 
         private static bool IsXmiNamespace(string namespaceUri)
@@ -160,10 +186,14 @@ namespace Uml4Net.Sage.Tools.Inspection
             return namespaceUri.Contains("/XMI", StringComparison.Ordinal);
         }
 
+        /// <summary>
+        /// Gets whether <paramref name="namespaceUri"/> is an OMG UML or Eclipse UML2 namespace. Namespace URIs are
+        /// identifiers, not locations, so only their host and path are compared, never fetched.
+        /// </summary>
         private static bool IsUmlNamespace(string namespaceUri)
         {
-            return namespaceUri.StartsWith("http://www.omg.org/spec/UML/", StringComparison.Ordinal)
-                || namespaceUri.StartsWith("http://www.eclipse.org/uml2/", StringComparison.Ordinal);
+            return namespaceUri.Contains("www.omg.org/spec/UML/", StringComparison.Ordinal)
+                || namespaceUri.Contains("www.eclipse.org/uml2/", StringComparison.Ordinal);
         }
     }
 }

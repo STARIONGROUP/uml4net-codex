@@ -29,6 +29,8 @@ namespace Uml4Net.Sage.Tools.Tests.Inspection
     [TestFixture]
     public class XmiInspectorTests
     {
+        private const string BrokenModel = "model-broken.xmi";
+
         private static string FixturesDirectory => Path.Combine(NUnit.Framework.TestContext.CurrentContext.TestDirectory, "Fixtures");
 
         private static string MetamodelJsonPath => Path.Combine(FixturesDirectory, "metamodel-uml-subset.json");
@@ -73,7 +75,7 @@ namespace Uml4Net.Sage.Tools.Tests.Inspection
         [Test]
         public void Inspect_reports_an_unresolved_idref_with_the_referencing_element_property_and_line()
         {
-            var report = Inspect("model-broken.xmi");
+            var report = Inspect(BrokenModel);
 
             var finding = report.Findings.Single(f => f.Category == "unresolved-reference" && f.ElementXmiId == "Car-engine");
             Assert.That(finding.Line, Is.EqualTo(6));
@@ -94,7 +96,7 @@ namespace Uml4Net.Sage.Tools.Tests.Inspection
         [Test]
         public void Inspect_hints_at_pathmap_when_a_pathmap_reference_is_unmapped()
         {
-            var report = Inspect("model-broken.xmi");
+            var report = Inspect(BrokenModel);
 
             var finding = report.Findings.Single(f => f.Category == "unresolved-reference" && f.ElementXmiId == "Car-wheel");
             Assert.That(finding.Message, Does.Contain("no --pathmap was given"));
@@ -105,7 +107,7 @@ namespace Uml4Net.Sage.Tools.Tests.Inspection
         {
             var pathMaps = new Dictionary<string, string> { ["pathmap://SAMPLE_LIBRARY"] = Path.Combine(FixturesDirectory, "library") };
 
-            var report = Inspect("model-broken.xmi", pathMaps);
+            var report = Inspect(BrokenModel, pathMaps);
 
             Assert.That(report.Findings, Has.None.Matches<InspectionFinding>(f => f is { ElementXmiId: "Car-wheel" }));
         }
@@ -113,7 +115,7 @@ namespace Uml4Net.Sage.Tools.Tests.Inspection
         [Test]
         public void Inspect_flags_a_required_feature_with_no_value()
         {
-            var report = Inspect("model-broken.xmi");
+            var report = Inspect(BrokenModel);
 
             var finding = report.Findings.Single(f => f.Category == "multiplicity-violation");
             Assert.That(finding.ElementXmiId, Is.EqualTo("Car-gen"));
@@ -124,7 +126,7 @@ namespace Uml4Net.Sage.Tools.Tests.Inspection
         [Test]
         public void Inspect_flags_a_duplicate_xmi_id_at_its_second_declaration()
         {
-            var report = Inspect("model-broken.xmi");
+            var report = Inspect(BrokenModel);
 
             var finding = report.Findings.Single(f => f.Category == "duplicate-xmi-id");
             Assert.That(finding.ElementXmiId, Is.EqualTo("Truck"));
@@ -135,9 +137,9 @@ namespace Uml4Net.Sage.Tools.Tests.Inspection
         [Test]
         public void Inspect_orders_findings_by_line()
         {
-            var report = Inspect("model-broken.xmi");
+            var report = Inspect(BrokenModel);
 
-            var lines = report.Findings.Where(f => f.Line is not null).Select(f => f.Line!.Value).ToList();
+            var lines = report.Findings.Select(f => f.Line).OfType<int>().ToList();
             Assert.That(lines, Is.Ordered);
         }
 
@@ -169,7 +171,7 @@ namespace Uml4Net.Sage.Tools.Tests.Inspection
             // reader logs - they are not the inspected model's problem.
             var report = Inspect("model-stereotyped.xmi");
 
-            Assert.That(report.Findings, Has.None.Matches<InspectionFinding>(f => f?.Message.Contains("not unique") == true));
+            Assert.That(report.Findings, Has.None.Matches<InspectionFinding>(f => f is not null && f.Message.Contains("not unique")));
             Assert.That(report.Findings.Select(f => f.Category), Is.EquivalentTo(new[] { "stereotype-misapplied", "stereotype-target-unresolved" }));
         }
 

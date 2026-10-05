@@ -33,7 +33,13 @@ namespace Uml4Net.Sage.Tools.Inspection
     /// <param name="OwnerName">The simple name of the metaclass that declares it.</param>
     /// <param name="Lower">The lower bound.</param>
     /// <param name="Upper">The upper bound (<c>*</c> for unbounded).</param>
-    public sealed record RequiredFeature(string Name, string OwnerName, int Lower, string Upper);
+    public sealed record RequiredFeature(string Name, string OwnerName, int Lower, string Upper)
+    {
+        /// <summary>
+        /// Gets <see cref="Upper"/> as a number, <see cref="int.MaxValue"/> when it is unbounded (<c>*</c>).
+        /// </summary>
+        public int UpperBound => int.TryParse(this.Upper, out var upper) ? upper : int.MaxValue;
+    }
 
     /// <summary>
     /// What <see cref="XmiInspector"/> needs to know about the UML metamodel, read from the generated
@@ -62,19 +68,19 @@ namespace Uml4Net.Sage.Tools.Inspection
             var metaclasses = new Dictionary<string, MetaclassFacts>(StringComparer.Ordinal);
             foreach (var classElement in document.RootElement.GetProperty("classes").EnumerateArray())
             {
-                var name = classElement.GetProperty("name").GetString()!;
+                var name = StringOf(classElement, "name");
                 var ancestors = classElement.TryGetProperty("allAncestors", out var ancestorsElement)
-                    ? ancestorsElement.EnumerateArray().Select(a => SimpleName(a.GetString()!)).ToHashSet(StringComparer.Ordinal)
+                    ? ancestorsElement.EnumerateArray().Select(a => SimpleName(a.GetString() ?? string.Empty)).ToHashSet(StringComparer.Ordinal)
                     : new HashSet<string>(StringComparer.Ordinal);
 
                 var requiredFeatures = Features(classElement, "ownedAttributes")
                     .Concat(Features(classElement, "inheritedAttributes"))
                     .Where(feature => !feature.GetProperty("isDerived").GetBoolean() && feature.GetProperty("lower").GetInt32() >= 1 && !HasDefaultValue(feature))
                     .Select(feature => new RequiredFeature(
-                        feature.GetProperty("name").GetString()!,
-                        SimpleName(feature.GetProperty("ownerQualifiedName").GetString()!),
+                        StringOf(feature, "name"),
+                        SimpleName(StringOf(feature, "ownerQualifiedName")),
                         feature.GetProperty("lower").GetInt32(),
-                        feature.GetProperty("upper").GetString()!))
+                        StringOf(feature, "upper")))
                     .OrderBy(feature => feature.Name, StringComparer.Ordinal)
                     .ToList();
 
@@ -123,6 +129,11 @@ namespace Uml4Net.Sage.Tools.Inspection
         private static bool HasDefaultValue(JsonElement feature)
         {
             return feature.TryGetProperty("defaultValue", out var defaultValue) && defaultValue.ValueKind == JsonValueKind.String;
+        }
+
+        private static string StringOf(JsonElement element, string propertyName)
+        {
+            return element.GetProperty(propertyName).GetString() ?? string.Empty;
         }
 
         private static string SimpleName(string qualifiedName)
