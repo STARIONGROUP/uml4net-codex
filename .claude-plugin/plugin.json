@@ -1,7 +1,7 @@
 {
   "name": "uml4net-sage",
   "displayName": "Sage — UML 2.5.1 Agent",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "Sage is the AI agent of the uml4net ecosystem: grounded, spec-accurate answers about the OMG UML 2.5.1 specification (and the OMG XMI 2.5.1 specification UML is serialized in), backed by a knowledge base built from the UML metamodel XMI, both specifications' text/schema and uml4net.",
   "author": {
     "name": "Starion Group S.A.",
@@ -11,7 +11,7 @@
   "repository": "https://github.com/STARIONGROUP/uml4net-sage",
   "license": "Apache-2.0",
   "keywords": ["uml", "uml-2.5.1", "omg", "metamodel", "xmi", "uml4net", "mbse"],
-  "sageCliVersion": "1.5.0",
+  "sageCliVersion": "1.6.0",
   "hooks": {
     "SessionStart": [
       {
