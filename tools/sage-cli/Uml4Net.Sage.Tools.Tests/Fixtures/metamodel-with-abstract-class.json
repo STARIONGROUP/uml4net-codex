@@ -1,6 +1,0 @@
-{
-  "classes": [
-    { "name": "Class", "qualifiedName": "UML::Fixture::Class", "isAbstract": true },
-    { "name": "Enumeration", "qualifiedName": "UML::Fixture::Enumeration", "isAbstract": false }
-  ]
-}

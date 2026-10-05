@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:uml="http://www.omg.org/spec/UML/20161101" xmlns:SampleProfile="http://example.com/SampleProfile">
+	<uml:Package xmi:type="uml:Package" xmi:id="_0" name="SampleModel">
+		<profileApplication xmi:type="uml:ProfileApplication" xmi:id="_0-profileApplication">
+			<appliedProfile href="SampleProfile.xmi#_profile"/>
+		</profileApplication>
+		<packagedElement xmi:type="uml:Class" xmi:id="Car" name="Car">
+			<ownedAttribute xmi:type="uml:Property" xmi:id="Car-plate" name="plate"/>
+		</packagedElement>
+	</uml:Package>
+	<SampleProfile:Entity xmi:id="Car-Entity" base_Class="Car"/>
+	<SampleProfile:Entity xmi:id="Car-plate-Entity" base_Class="Car-plate"/>
+	<SampleProfile:Entity xmi:id="Ghost-Entity" base_Class="Ghost"/>
+</xmi:XMI>

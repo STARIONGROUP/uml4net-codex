@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:uml="http://www.omg.org/spec/UML/20161101">
+	<uml:Profile xmi:type="uml:Profile" xmi:id="_profile" name="SampleProfile" URI="http://example.com/SampleProfile">
+		<packagedElement xmi:type="uml:Extension" xmi:id="Class_Entity" name="Class_Entity" memberEnd="Class_Entity-extension_Entity Entity-base_Class">
+			<ownedEnd xmi:type="uml:ExtensionEnd" xmi:id="Class_Entity-extension_Entity" name="extension_Entity" type="Entity" aggregation="composite" association="Class_Entity"/>
+		</packagedElement>
+		<packagedElement xmi:type="uml:Stereotype" xmi:id="Entity" name="Entity">
+			<ownedAttribute xmi:type="uml:Property" xmi:id="Entity-base_Class" name="base_Class" association="Class_Entity">
+				<type xmi:type="uml:Class" href="http://www.omg.org/spec/UML/20161101/UML.xmi#Class"/>
+			</ownedAttribute>
+		</packagedElement>
+	</uml:Profile>
+</xmi:XMI>

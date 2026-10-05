@@ -1,0 +1,242 @@
+{
+  "classes": [
+    {
+      "name": "Element",
+      "qualifiedName": "UML::Subset::Element",
+      "isAbstract": true,
+      "allAncestors": [],
+      "ownedAttributes": [],
+      "inheritedAttributes": []
+    },
+    {
+      "name": "NamedElement",
+      "qualifiedName": "UML::Subset::NamedElement",
+      "isAbstract": true,
+      "allAncestors": [
+        "UML::Subset::Element"
+      ],
+      "ownedAttributes": [],
+      "inheritedAttributes": []
+    },
+    {
+      "name": "Classifier",
+      "qualifiedName": "UML::Subset::Classifier",
+      "isAbstract": true,
+      "allAncestors": [
+        "UML::Subset::NamedElement",
+        "UML::Subset::Element"
+      ],
+      "ownedAttributes": [],
+      "inheritedAttributes": []
+    },
+    {
+      "name": "Class",
+      "qualifiedName": "UML::Subset::Class",
+      "isAbstract": false,
+      "allAncestors": [
+        "UML::Subset::Classifier",
+        "UML::Subset::NamedElement",
+        "UML::Subset::Element"
+      ],
+      "ownedAttributes": [],
+      "inheritedAttributes": []
+    },
+    {
+      "name": "Stereotype",
+      "qualifiedName": "UML::Subset::Stereotype",
+      "isAbstract": false,
+      "allAncestors": [
+        "UML::Subset::Class",
+        "UML::Subset::Classifier",
+        "UML::Subset::NamedElement",
+        "UML::Subset::Element"
+      ],
+      "ownedAttributes": [],
+      "inheritedAttributes": []
+    },
+    {
+      "name": "Package",
+      "qualifiedName": "UML::Subset::Package",
+      "isAbstract": false,
+      "allAncestors": [
+        "UML::Subset::NamedElement",
+        "UML::Subset::Element"
+      ],
+      "ownedAttributes": [],
+      "inheritedAttributes": []
+    },
+    {
+      "name": "Profile",
+      "qualifiedName": "UML::Subset::Profile",
+      "isAbstract": false,
+      "allAncestors": [
+        "UML::Subset::Package",
+        "UML::Subset::NamedElement",
+        "UML::Subset::Element"
+      ],
+      "ownedAttributes": [],
+      "inheritedAttributes": []
+    },
+    {
+      "name": "Property",
+      "qualifiedName": "UML::Subset::Property",
+      "isAbstract": false,
+      "allAncestors": [
+        "UML::Subset::NamedElement",
+        "UML::Subset::Element"
+      ],
+      "ownedAttributes": [],
+      "inheritedAttributes": []
+    },
+    {
+      "name": "ExtensionEnd",
+      "qualifiedName": "UML::Subset::ExtensionEnd",
+      "isAbstract": false,
+      "allAncestors": [
+        "UML::Subset::Property",
+        "UML::Subset::NamedElement",
+        "UML::Subset::Element"
+      ],
+      "ownedAttributes": [],
+      "inheritedAttributes": []
+    },
+    {
+      "name": "Association",
+      "qualifiedName": "UML::Subset::Association",
+      "isAbstract": false,
+      "allAncestors": [
+        "UML::Subset::Classifier",
+        "UML::Subset::NamedElement",
+        "UML::Subset::Element"
+      ],
+      "ownedAttributes": [
+        {
+          "name": "memberEnd",
+          "kind": "attribute",
+          "lower": 2,
+          "upper": "*",
+          "isDerived": false,
+          "ownerQualifiedName": "UML::Subset::Association",
+          "defaultValue": null
+        }
+      ],
+      "inheritedAttributes": []
+    },
+    {
+      "name": "Extension",
+      "qualifiedName": "UML::Subset::Extension",
+      "isAbstract": false,
+      "allAncestors": [
+        "UML::Subset::Association",
+        "UML::Subset::Classifier",
+        "UML::Subset::NamedElement",
+        "UML::Subset::Element"
+      ],
+      "ownedAttributes": [],
+      "inheritedAttributes": [
+        {
+          "name": "memberEnd",
+          "kind": "attribute",
+          "lower": 2,
+          "upper": "*",
+          "isDerived": false,
+          "ownerQualifiedName": "UML::Subset::Association",
+          "defaultValue": null
+        }
+      ]
+    },
+    {
+      "name": "Enumeration",
+      "qualifiedName": "UML::Subset::Enumeration",
+      "isAbstract": false,
+      "allAncestors": [
+        "UML::Subset::Classifier",
+        "UML::Subset::NamedElement",
+        "UML::Subset::Element"
+      ],
+      "ownedAttributes": [],
+      "inheritedAttributes": []
+    },
+    {
+      "name": "EnumerationLiteral",
+      "qualifiedName": "UML::Subset::EnumerationLiteral",
+      "isAbstract": false,
+      "allAncestors": [
+        "UML::Subset::NamedElement",
+        "UML::Subset::Element"
+      ],
+      "ownedAttributes": [],
+      "inheritedAttributes": []
+    },
+    {
+      "name": "Generalization",
+      "qualifiedName": "UML::Subset::Generalization",
+      "isAbstract": false,
+      "allAncestors": [
+        "UML::Subset::Element"
+      ],
+      "ownedAttributes": [
+        {
+          "name": "general",
+          "kind": "attribute",
+          "lower": 1,
+          "upper": "1",
+          "isDerived": false,
+          "ownerQualifiedName": "UML::Subset::Generalization",
+          "defaultValue": null
+        },
+        {
+          "name": "specific",
+          "kind": "attribute",
+          "lower": 1,
+          "upper": "1",
+          "isDerived": false,
+          "ownerQualifiedName": "UML::Subset::Generalization",
+          "defaultValue": null
+        }
+      ],
+      "inheritedAttributes": []
+    },
+    {
+      "name": "ProfileApplication",
+      "qualifiedName": "UML::Subset::ProfileApplication",
+      "isAbstract": false,
+      "allAncestors": [
+        "UML::Subset::Element"
+      ],
+      "ownedAttributes": [
+        {
+          "name": "appliedProfile",
+          "kind": "attribute",
+          "lower": 1,
+          "upper": "1",
+          "isDerived": false,
+          "ownerQualifiedName": "UML::Subset::ProfileApplication",
+          "defaultValue": null
+        }
+      ],
+      "inheritedAttributes": []
+    },
+    {
+      "name": "LiteralUnlimitedNatural",
+      "qualifiedName": "UML::Subset::LiteralUnlimitedNatural",
+      "isAbstract": false,
+      "allAncestors": [
+        "UML::Subset::NamedElement",
+        "UML::Subset::Element"
+      ],
+      "ownedAttributes": [
+        {
+          "name": "value",
+          "kind": "attribute",
+          "lower": 1,
+          "upper": "1",
+          "isDerived": false,
+          "ownerQualifiedName": "UML::Subset::LiteralUnlimitedNatural",
+          "defaultValue": "0"
+        }
+      ],
+      "inheritedAttributes": []
+    }
+  ]
+}

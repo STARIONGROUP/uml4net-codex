@@ -41,8 +41,6 @@ namespace Uml4Net.Sage.MetamodelGen
         /// </summary>
         public static IReadOnlyList<AssociationEndInfo> MemberEndsOf(IAssociation association)
         {
-            var ownedEnds = new HashSet<IProperty>(association.OwnedEnd, ReferenceEqualityComparer.Instance);
-
             return association.MemberEnd
                 .Select(end =>
                 {
@@ -57,7 +55,11 @@ namespace Uml4Net.Sage.MetamodelGen
                         IsOrdered: end.IsOrdered,
                         IsUnique: end.IsUnique,
                         IsComposite: end.IsComposite,
-                        IsOwnedByAssociation: ownedEnds.Contains(end));
+                        IsOwnedByAssociation: ReferenceEquals(end.OwningAssociation, association),
+                        IsDerived: end.IsDerived,
+                        Aggregation: end.Aggregation.ToString().ToLowerInvariant(),
+                        IsNavigable: end.OwningAssociation is null || association.NavigableOwnedEnd.Contains(end),
+                        Opposite: end.Opposite?.QualifiedName);
                 })
                 .ToList();
         }

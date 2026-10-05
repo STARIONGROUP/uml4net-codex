@@ -12,8 +12,12 @@ Read order:
 1. `knowledge/installed.json` to resolve the default version if the caller didn't specify one.
 2. `knowledge/<version>/metamodel/metamodel.json` - prefer `jq` queries over this single JSON
    document (it has every class's precomputed `allAncestors`, `allDescendants`, `directSubclasses`,
-   `ownedAttributes`, `inheritedAttributes`, `ownedOperations`, `constraints`) rather than reading
-   every element's markdown file individually.
+   `ownedAttributes`, `ownedOperations`, `inheritedAttributes`, `inheritedOperations`,
+   `constraints`) rather than reading every element's markdown file individually. Inherited lists
+   are UML's `inheritedMember`: a member a more specific metaclass redefines is not listed. Each
+   feature carries `isDerived`, `isDerivedUnion`, `isReadOnly`, `isStatic`, `aggregation`, `opposite`
+   and `defaultValue` (attributes) or `isQuery`/`isAbstract` (operations); each association end
+   carries `isNavigable`, `aggregation`, `isDerived` and `opposite`.
 3. Fall back to `Grep`/`Read` over `knowledge/<version>/metamodel/elements/*.md` and
    `knowledge/<version>/metamodel/index.json` only when `jq` isn't available or the question needs
    the rendered prose (e.g. OCL constraint bodies with their names).

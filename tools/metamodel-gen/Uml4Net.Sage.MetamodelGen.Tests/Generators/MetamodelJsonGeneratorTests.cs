@@ -44,6 +44,23 @@ namespace Uml4Net.Sage.MetamodelGen.Tests.Generators
         }
 
         [Test]
+        public void Build_excludes_redefined_members_from_inherited_operations()
+        {
+            var catalog = TestFixtures.BuildCatalog();
+            var graph = ClassGraph.Build(catalog.Classes);
+
+            var document = MetamodelJsonGenerator.Build(catalog, graph);
+
+            // Gadget::describe redefines Widget::describe: Gadget inherits neither, SuperGadget only Gadget's.
+            var gadget = document.Classes.Single(c => c.Name == "Gadget");
+            Assert.That(gadget.InheritedOperations, Is.Empty);
+
+            var superGadget = document.Classes.Single(c => c.Name == "SuperGadget");
+            Assert.That(superGadget.InheritedOperations.Select(o => o.OwnerQualifiedName), Is.EqualTo(new[] { "Fixture::Gadget" }));
+            Assert.That(superGadget.InheritedAttributes.All(a => a.Kind == "attribute"), Is.True);
+        }
+
+        [Test]
         public void Serialize_produces_valid_camel_case_json()
         {
             var catalog = TestFixtures.BuildCatalog();

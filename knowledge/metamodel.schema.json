@@ -15,7 +15,7 @@
   "definitions": {
     "feature": {
       "type": "object",
-      "required": ["name", "kind", "lower", "upper", "isDerived", "isOrdered", "isUnique", "isComposite", "redefines", "subsets", "ownerQualifiedName", "parameters"],
+      "required": ["name", "kind", "lower", "upper", "isDerived", "isOrdered", "isUnique", "isComposite", "redefines", "subsets", "ownerQualifiedName", "parameters", "isStatic", "isReadOnly", "isDerivedUnion", "isQuery", "isAbstract"],
       "properties": {
         "name": { "type": "string" },
         "kind": { "enum": ["attribute", "operation"] },
@@ -34,7 +34,15 @@
           "type": "array",
           "description": "An operation's in/inout/out parameters in declaration order (the return parameter is instead represented by this feature's own typeName/lower/upper); always empty for an attribute.",
           "items": { "$ref": "#/definitions/parameter" }
-        }
+        },
+        "isStatic": { "type": "boolean" },
+        "isReadOnly": { "type": "boolean", "description": "Always false for an operation." },
+        "isDerivedUnion": { "type": "boolean", "description": "True when the attribute's value is the union of every property that subsets it; always false for an operation." },
+        "aggregation": { "enum": ["none", "shared", "composite", null], "description": "An attribute's aggregation; null for an operation." },
+        "opposite": { "type": ["string", "null"], "description": "Qualified name of the other end when the attribute is an end of a binary association (possibly an end the association itself owns), otherwise null." },
+        "defaultValue": { "type": ["string", "null"], "description": "An attribute's default value in UML notation (e.g. \"false\", \"1\", \"*\", or an enumeration literal's name), or null when it has none." },
+        "isQuery": { "type": "boolean", "description": "Always false for an attribute." },
+        "isAbstract": { "type": "boolean", "description": "Whether the operation is abstract; always false for an attribute." }
       }
     },
     "parameter": {
@@ -60,7 +68,7 @@
     },
     "classNode": {
       "type": "object",
-      "required": ["name", "qualifiedName", "package", "isAbstract", "directSuperClasses", "directSubclasses", "allAncestors", "allDescendants", "ownedAttributes", "ownedOperations", "inheritedAttributes", "constraints"],
+      "required": ["name", "qualifiedName", "package", "isAbstract", "directSuperClasses", "directSubclasses", "allAncestors", "allDescendants", "ownedAttributes", "ownedOperations", "inheritedAttributes", "inheritedOperations", "constraints"],
       "properties": {
         "name": { "type": "string" },
         "qualifiedName": { "type": "string" },
@@ -72,7 +80,16 @@
         "allDescendants": { "type": "array", "items": { "type": "string" } },
         "ownedAttributes": { "type": "array", "items": { "$ref": "#/definitions/feature" } },
         "ownedOperations": { "type": "array", "items": { "$ref": "#/definitions/feature" } },
-        "inheritedAttributes": { "type": "array", "items": { "$ref": "#/definitions/feature" } },
+        "inheritedAttributes": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/feature" },
+          "description": "UML Classifier::inheritedMember restricted to attributes: every non-private attribute of every ancestor, minus those redefined by a more specific classifier."
+        },
+        "inheritedOperations": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/feature" },
+          "description": "UML Classifier::inheritedMember restricted to operations: every non-private operation of every ancestor, minus those redefined by a more specific classifier."
+        },
         "constraints": { "type": "array", "items": { "$ref": "#/definitions/constraint" } }
       }
     },
@@ -110,7 +127,7 @@
     },
     "associationEnd": {
       "type": "object",
-      "required": ["name", "lower", "upper", "isOrdered", "isUnique", "isComposite", "isOwnedByAssociation"],
+      "required": ["name", "lower", "upper", "isOrdered", "isUnique", "isComposite", "isOwnedByAssociation", "isDerived", "aggregation", "isNavigable"],
       "properties": {
         "name": { "type": "string" },
         "typeName": { "type": ["string", "null"] },
@@ -122,8 +139,12 @@
         "isComposite": { "type": "boolean" },
         "isOwnedByAssociation": {
           "type": "boolean",
-          "description": "True when this end is one of the association's own ownedEnd properties (the non-navigable/opposite end that neither endpoint classifier owns as its own attribute); false when it's instead owned by one of the endpoint classifiers and already appears in that classifier's own ownedAttributes."
-        }
+          "description": "True when this end is one of the association's own ownedEnd properties (an end that neither endpoint classifier owns as its own attribute - usually non-navigable, see isNavigable); false when it's instead owned by one of the endpoint classifiers and already appears in that classifier's own ownedAttributes."
+        },
+        "isDerived": { "type": "boolean" },
+        "aggregation": { "enum": ["none", "shared", "composite"] },
+        "isNavigable": { "type": "boolean", "description": "UML Property::isNavigable(): the end is owned by a classifier, or is one of the association's navigableOwnedEnd." },
+        "opposite": { "type": ["string", "null"], "description": "Qualified name of the other end of a binary association, otherwise null." }
       }
     }
   }

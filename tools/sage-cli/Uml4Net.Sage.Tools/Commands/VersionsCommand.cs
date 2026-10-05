@@ -64,7 +64,7 @@ namespace Uml4Net.Sage.Tools.Commands
 
                 if (parseResult.GetValue(GlobalOptions.Json))
                 {
-                    AnsiConsole.WriteLine(System.Text.Json.JsonSerializer.Serialize(rows, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
+                    AnsiConsole.Profile.Out.Writer.WriteLine(System.Text.Json.JsonSerializer.Serialize(rows, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
                     return 0;
                 }
 

@@ -20,11 +20,11 @@
 
 namespace Uml4Net.Sage.MetamodelGen.Generators
 {
-    using System.Linq;
     using System.Text;
 
-    using uml4net.CommonStructure;
     using uml4net.SimpleClassifiers;
+
+    using Uml4Net.Sage.MetamodelGen.Markdown;
 
     /// <summary>
     /// Renders one <see cref="IPrimitiveType"/> to a markdown page: front matter and its own documentation comment.
@@ -36,8 +36,8 @@ namespace Uml4Net.Sage.MetamodelGen.Generators
         /// </summary>
         public static string Render(IPrimitiveType primitiveType)
         {
-            var package = (primitiveType.Namespace as INamedElement)?.QualifiedName ?? string.Empty;
-            var documentation = primitiveType.OwnedComment.Select(comment => comment.Body).FirstOrDefault(body => !string.IsNullOrWhiteSpace(body));
+            var package = ElementNames.NamespaceOf(primitiveType);
+            var documentation = MarkdownHelpers.Documentation(primitiveType);
 
             var builder = new StringBuilder();
             builder.Append("---\n");

@@ -25,12 +25,18 @@
       "description": "knowledge/<version>/standard-profile/index.json - one row per Standard Profile stereotype.",
       "items": {
         "type": "object",
-        "required": ["qualifiedName", "kind", "file", "source"],
+        "required": ["qualifiedName", "kind", "file", "source", "profile", "baseMetaclasses"],
         "properties": {
           "qualifiedName": { "type": "string" },
           "kind": { "const": "stereotype" },
           "file": { "type": "string", "description": "Relative to standard-profile/, e.g. \"pages/Trace.md\"." },
-          "source": { "const": "StandardProfile" }
+          "source": { "const": "StandardProfile" },
+          "profile": { "type": "string", "description": "Qualified name of the profile that owns the stereotype (IStereotype.Profile)." },
+          "baseMetaclasses": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Simple names of the metaclasses this stereotype itself extends (not those of its specializations), sorted; whether each extension is required is on the stereotype's own page."
+          }
         }
       }
     },

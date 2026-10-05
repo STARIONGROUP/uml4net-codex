@@ -25,29 +25,39 @@ prose - see `uml-spec-citation`.
    `"primitiveType"`, or `"association"`.
 3. `knowledge/<version>/metamodel/elements/<file>` (the `file` field from the index row) - the full
    per-element markdown page. For `kind: "class"`/`"enumeration"`/`"primitiveType"`: front matter,
-   `## Generalizations`, `## Specializations`, `## Owned features`, `## Inherited features` (a full
-   precomputed table - never re-derive this by hand-walking generalizations), `## Constraints` (OCL,
+   `## Generalizations`, `## Specializations`, `## Owned features` (each feature's type,
+   multiplicity, modifiers - `derived`, `union` (derived union), `readOnly`, `static`, `ordered`,
+   `non-unique`, `composite`, `shared`, `query`, `abstract` - plus `default`, `opposite` (the other end
+   of the feature's binary association), `redefines` and `subsets` sub-bullets), `## Inherited
+   features` (UML's `inheritedMember`, precomputed: every ancestor's attributes and operations minus
+   those a more specific metaclass redefines - never re-derive this by hand-walking generalizations,
+   and don't expect a redefined member to be listed), `## Constraints` (OCL,
    tagged MODEL tier since it's read directly from the metamodel XMI), `## Description` (the
    element's own defining comment from the XMI, also MODEL tier - not a verbatim spec quote, even
    where the wording is close; for that, see `uml-spec-citation`). For `kind: "association"` the
    page's shape is different - no Generalizations/Owned features sections, just `## Member ends`
-   (each end's type/multiplicity/modifiers, flagged `owned by this association` when the end is one
-   of the association's own non-navigable `ownedEnd` properties rather than an attribute you'd find
-   on either endpoint classifier's own page) and `## Description`.
+   (each end's type/multiplicity/modifiers, including `non-navigable`, flagged `owned by this
+   association` when the end is one of the association's own `ownedEnd` properties rather than an
+   attribute you'd find on either endpoint classifier's own page) and `## Description`.
 
 ## Set/closure questions
 
 For questions like "every concrete subclass of Classifier" or "which metaclasses have a feature
 typed by ValueSpecification", prefer `jq` over `knowledge/<version>/metamodel/metamodel.json` (a
 single JSON document with every class's `allAncestors`, `allDescendants`, `directSubclasses`,
-`ownedAttributes`, `inheritedAttributes`, `ownedOperations`, and `constraints` precomputed, plus a
-top-level `associations` array with each association's `memberEnds` - no JSON library required, and
+`ownedAttributes`, `ownedOperations`, `inheritedAttributes`, `inheritedOperations`, and `constraints`
+precomputed - each feature carrying `isDerived`/`isDerivedUnion`/`isReadOnly`/`isStatic`/
+`aggregation`/`opposite`/`defaultValue` (attributes) or `isQuery`/`isAbstract` (operations) - plus a
+top-level `associations` array with each association's `memberEnds` (each with `isNavigable`,
+`aggregation`, `isDerived` and `opposite`) - no JSON library required, and
 cheaper than reading every element file). If `jq` isn't installed, fall back to `Read`/`Grep` over
 the per-element markdown files; it works but costs more context.
 
 Examples:
 - `jq '.classes[] | select(.isAbstract == false and (.allAncestors | index("UML::Classification::Classifier")) != null) | .name' knowledge/2.5.1/metamodel/metamodel.json`
-- `jq '.associations[] | select(.memberEnds[].isOwnedByAssociation) | .name' knowledge/2.5.1/metamodel/metamodel.json` - every association with a non-navigable opposite end
+- `jq '.associations[] | select(any(.memberEnds[]; .isNavigable | not)) | .name' knowledge/2.5.1/metamodel/metamodel.json` - every association with a non-navigable end
+- `jq '.classes[] | select(.name == "Class") | .ownedAttributes[] | select(.name == "nestedClassifier") | .opposite' knowledge/2.5.1/metamodel/metamodel.json` - the opposite end of `Class::nestedClassifier`
+- `jq '[.classes[] | .ownedAttributes[] | select(.isDerivedUnion) | "\(.ownerQualifiedName)::\(.name)"]' knowledge/2.5.1/metamodel/metamodel.json` - every derived union
 
 ## Answering
 

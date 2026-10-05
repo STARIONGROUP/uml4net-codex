@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:uml="http://www.omg.org/spec/UML/20161101">
+	<uml:Package xmi:type="uml:Package" xmi:id="_0" name="SampleModel">
+		<packagedElement xmi:type="uml:Class" xmi:id="Car" name="Car">
+			<generalization xmi:type="uml:Generalization" xmi:id="Car-gen"/>
+			<ownedAttribute xmi:type="uml:Property" xmi:id="Car-engine" name="engine" type="Engine"/>
+			<ownedAttribute xmi:type="uml:Property" xmi:id="Car-wheel" name="wheel">
+				<type xmi:type="uml:Class" href="pathmap://SAMPLE_LIBRARY/Parts.xmi#Wheel"/>
+			</ownedAttribute>
+		</packagedElement>
+		<packagedElement xmi:type="uml:Class" xmi:id="Truck" name="Truck"/>
+		<packagedElement xmi:type="uml:Class" xmi:id="Truck" name="Lorry"/>
+	</uml:Package>
+</xmi:XMI>

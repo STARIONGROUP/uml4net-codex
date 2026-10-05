@@ -23,7 +23,6 @@ namespace Uml4Net.Sage.MetamodelGen.Generators
     using System.Collections.Generic;
     using System.Text;
 
-    using uml4net.CommonStructure;
     using uml4net.StructuredClassifiers;
 
     using Uml4Net.Sage.MetamodelGen.Markdown;
@@ -42,7 +41,7 @@ namespace Uml4Net.Sage.MetamodelGen.Generators
         /// </summary>
         public static string Render(IAssociation association)
         {
-            var package = (association.Namespace as INamedElement)?.QualifiedName ?? string.Empty;
+            var package = ElementNames.NamespaceOf(association);
             var memberEnds = AssociationExtractor.MemberEndsOf(association);
 
             var builder = new StringBuilder();
@@ -69,6 +68,11 @@ namespace Uml4Net.Sage.MetamodelGen.Generators
                 builder.Append(" [").Append(end.Lower).Append("..").Append(end.Upper).Append(']');
 
                 var modifiers = new List<string>();
+                if (end.IsDerived)
+                {
+                    modifiers.Add("derived");
+                }
+
                 if (end.IsOrdered)
                 {
                     modifiers.Add("ordered");
@@ -82,6 +86,16 @@ namespace Uml4Net.Sage.MetamodelGen.Generators
                 if (end.IsComposite)
                 {
                     modifiers.Add("composite");
+                }
+
+                if (end.Aggregation == "shared")
+                {
+                    modifiers.Add("shared");
+                }
+
+                if (!end.IsNavigable)
+                {
+                    modifiers.Add("non-navigable");
                 }
 
                 if (modifiers.Count > 0)
@@ -98,7 +112,7 @@ namespace Uml4Net.Sage.MetamodelGen.Generators
             }
 
             builder.Append("\n## Description\n\n");
-            builder.Append(MarkdownHelpers.FirstNonBlankCommentBody(association.OwnedComment) ?? "_No description available._").Append('\n');
+            builder.Append(MarkdownHelpers.Documentation(association) ?? "_No description available._").Append('\n');
 
             return builder.ToString();
         }

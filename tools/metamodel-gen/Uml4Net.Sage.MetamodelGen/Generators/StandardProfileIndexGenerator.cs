@@ -41,7 +41,13 @@ namespace Uml4Net.Sage.MetamodelGen.Generators
         {
             return catalog.Stereotypes
                 .Where(s => !string.IsNullOrEmpty(s.QualifiedName))
-                .Select(s => new StandardProfileIndexRow(s.QualifiedName, "stereotype", $"pages/{s.Name}.md", "StandardProfile"))
+                .Select(s => new StandardProfileIndexRow(
+                    s.QualifiedName,
+                    "stereotype",
+                    $"pages/{s.Name}.md",
+                    "StandardProfile",
+                    StereotypeFileGenerator.ProfileOf(s),
+                    StereotypeFileGenerator.ExtensionsOf(s).Select(extension => extension.Metaclass).ToList()))
                 .OrderBy(row => row.QualifiedName, System.StringComparer.Ordinal)
                 .ToList();
         }
@@ -61,11 +67,12 @@ namespace Uml4Net.Sage.MetamodelGen.Generators
         {
             var builder = new StringBuilder();
             builder.Append("# Standard Profile index\n\n");
-            builder.Append("| Qualified name | Kind | File | Source |\n|---|---|---|---|\n");
+            builder.Append("| Qualified name | Kind | Base metaclasses | File | Source |\n|---|---|---|---|---|\n");
 
             foreach (var row in rows)
             {
-                builder.Append("| ").Append(row.QualifiedName).Append(" | ").Append(row.Kind).Append(" | [")
+                builder.Append("| ").Append(row.QualifiedName).Append(" | ").Append(row.Kind)
+                    .Append(" | ").Append(string.Join(", ", row.BaseMetaclasses)).Append(" | [")
                     .Append(row.File).Append("](").Append(row.File).Append(") | ").Append(row.Source).Append(" |\n");
             }
 
