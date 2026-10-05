@@ -38,11 +38,8 @@ namespace Uml4Net.Sage.MetamodelGen.Tests.Generators
         }
 
         [Test]
-        public void Render_derives_the_base_metaclass_from_the_base_prefixed_owned_attribute()
+        public void Render_reads_the_base_metaclass_from_the_stereotypes_extension()
         {
-            // Regression test: IClass.Extension / IExtension.Metaclass throw NotSupportedException in
-            // uml4net.xmi 8.5.0 - StereotypeFileGenerator must derive the base metaclass from the
-            // stereotype's own "base_<Metaclass>" owned attribute instead.
             var sample = this.catalog.Stereotypes.Single(s => s.Name == "Sample");
 
             var markdown = StereotypeFileGenerator.Render(sample, this.graph);
@@ -53,7 +50,19 @@ namespace Uml4Net.Sage.MetamodelGen.Tests.Generators
         }
 
         [Test]
-        public void Render_excludes_the_base_prefixed_attribute_from_tagged_values()
+        public void Render_does_not_report_a_specializing_stereotypes_extension_on_its_general()
+        {
+            // uml4net's IClass.Extension follows the OCL's endTypes.allParents() branch, so Sample's Extension
+            // also contains SpecialSample's Gadget extension - it must not show up as a Sample base metaclass.
+            var sample = this.catalog.Stereotypes.Single(s => s.Name == "Sample");
+            var specialSample = this.catalog.Stereotypes.Single(s => s.Name == "SpecialSample");
+
+            Assert.That(StereotypeFileGenerator.Render(sample, this.graph), Does.Not.Contain("Gadget"));
+            Assert.That(StereotypeFileGenerator.Render(specialSample, this.graph), Does.Contain("baseMetaclasses: [\"Gadget\"]"));
+        }
+
+        [Test]
+        public void Render_excludes_the_extension_end_attribute_from_tagged_values()
         {
             var sample = this.catalog.Stereotypes.Single(s => s.Name == "Sample");
 

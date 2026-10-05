@@ -3,7 +3,7 @@ name: Release CLI
 # Publishes the full uml4net-sage CLI as a self-contained, per-runtime-identifier zip for each of
 # the four published platforms, records each asset's SHA-256 in the release body (parsed by
 # Uml4Net.Sage.Tools.Hook.ChecksumTable), and drafts a GitHub Release tagged tools-v<version>.
-# NativeAOT is deliberately NOT used here - see CLAUDE.md ("uml4net.xmi is reflection-heavy").
+# NativeAOT is deliberately NOT used here - see CLAUDE.md ("Why the full CLI is not NativeAOT").
 
 on:
   push:
