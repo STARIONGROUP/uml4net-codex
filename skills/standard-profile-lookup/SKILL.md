@@ -31,9 +31,9 @@ not here.
 
 - State the UML version.
 - Name every base metaclass a stereotype extends, and say when an extension is required - a
-  stereotype can apply to more than one (e.g.
-  `«Trace»` extends both `Abstraction` and other classifiers in some editions - always check the
-  actual list rather than assuming one). A stereotype also applies wherever its generalizations do:
+  stereotype can extend more than one (in UML 2.5.1, `«Create»` extends both `BehavioralFeature`
+  and `Usage`), so always read the actual `baseMetaclasses` list rather than assuming a single one
+  or answering from memory. A stereotype also applies wherever its generalizations do:
   the listed base metaclasses are only the ones it extends itself, so check `## Generalizations` too.
 - Tag facts as **MODEL** tier (read directly from `StandardProfile.xmi`). If `## Description` says
   "_No description available._", say so plainly rather than inventing an explanation - the OMG

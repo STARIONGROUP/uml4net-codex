@@ -68,6 +68,18 @@ namespace Uml4Net.Sage.MetamodelGen.Tests
         }
 
         [Test]
+        public void Generate_writes_utf8_without_a_byte_order_mark()
+        {
+            MetamodelGenerator.Generate(TestFixtures.XmiDirectory, this.outputRoot, "Fixture.xmi", "FixtureProfile.xmi");
+
+            foreach (var path in Directory.GetFiles(this.outputRoot, "*", SearchOption.AllDirectories))
+            {
+                var bytes = File.ReadAllBytes(path);
+                Assert.That(bytes.Take(3), Is.Not.EqualTo(new byte[] { 0xEF, 0xBB, 0xBF }), $"{path} starts with a UTF-8 byte-order mark");
+            }
+        }
+
+        [Test]
         public void Generate_is_byte_for_byte_deterministic_across_two_independent_runs()
         {
             var firstRun = Path.Combine(this.outputRoot, "run1");

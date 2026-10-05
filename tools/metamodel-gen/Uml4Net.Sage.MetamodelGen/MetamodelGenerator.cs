@@ -142,11 +142,17 @@ namespace Uml4Net.Sage.MetamodelGen
             WriteText(Path.Combine(standardProfileDirectory, "index.md"), StandardProfileIndexGenerator.RenderMarkdown(indexRows));
         }
 
+        /// <summary>
+        /// UTF-8 without a byte-order mark: <see cref="System.Text.Encoding.UTF8"/> writes one, which ends up in front
+        /// of the markdown front matter's opening <c>---</c> and of every JSON document.
+        /// </summary>
+        private static readonly System.Text.UTF8Encoding Utf8WithoutByteOrderMark = new(encoderShouldEmitUTF8Identifier: false);
+
         private static void WriteText(string path, string content)
         {
             Directory.CreateDirectory(Path.GetDirectoryName(path)!);
 
-            using var writer = new StreamWriter(path, append: false, System.Text.Encoding.UTF8);
+            using var writer = new StreamWriter(path, append: false, Utf8WithoutByteOrderMark);
             writer.NewLine = "\n";
             writer.Write(content.Replace("\r\n", "\n"));
             if (!content.EndsWith('\n'))
